@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/layout/Navbar';
 import { Button } from '../components/ui/Button';
 import { GameCard } from '../components/ui/GameCard';
-import { GlassCard } from '../components/ui/Card';
 import type { Game } from '../types';
 
 // Game data

@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import { ReactNode, ButtonHTMLAttributes } from 'react';
+import type { ReactNode } from 'react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps {
   children: ReactNode;
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -12,6 +12,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
   icon?: ReactNode;
   iconPosition?: 'left' | 'right';
+  className?: string;
+  disabled?: boolean;
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -58,7 +62,8 @@ export function Button({
   iconPosition = 'left',
   className = '',
   disabled,
-  ...props
+  onClick,
+  type = 'button',
 }: ButtonProps) {
   return (
     <motion.button
@@ -77,7 +82,8 @@ export function Button({
         ${className}
       `}
       disabled={disabled}
-      {...props}
+      onClick={onClick}
+      type={type}
     >
       {/* Shimmer effect overlay */}
       <span className="absolute inset-0 overflow-hidden rounded-inherit">
@@ -92,11 +98,14 @@ export function Button({
 }
 
 // Icon button variant
-interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface IconButtonProps {
   icon: ReactNode;
   variant?: ButtonVariant;
   size?: 'sm' | 'md' | 'lg';
   label: string;
+  className?: string;
+  onClick?: () => void;
+  disabled?: boolean;
 }
 
 export function IconButton({
@@ -105,7 +114,8 @@ export function IconButton({
   size = 'md',
   label,
   className = '',
-  ...props
+  onClick,
+  disabled,
 }: IconButtonProps) {
   const iconSizes = {
     sm: 'w-8 h-8',
@@ -125,7 +135,8 @@ export function IconButton({
         ${className}
       `}
       aria-label={label}
-      {...props}
+      onClick={onClick}
+      disabled={disabled}
     >
       {icon}
     </motion.button>
