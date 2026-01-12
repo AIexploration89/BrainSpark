@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { TypingMaster } from '../games/typing-master';
 import { MemoryMatrix } from '../games/memory-matrix';
+import { CodeQuest } from '../games/code-quest';
 
 // Game info mapping
 const gameInfo: Record<string, { name: string; icon: string; color: string; description: string }> = {
@@ -89,6 +90,10 @@ export function GamePlayPage() {
 
   if (gameId === 'memory-matrix') {
     return <MemoryMatrix />;
+  }
+
+  if (gameId === 'code-quest') {
+    return <CodeQuest />;
   }
 
   const colorClass = colorClasses[game.color];
