@@ -260,10 +260,10 @@ export function GamesPage() {
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
+              { name: 'Space Exploration', icon: '🚀', desc: 'Explore the cosmos and constellations' },
               { name: 'Science Explorer', icon: '🔭', desc: 'Discover the wonders of science' },
               { name: 'Geography Quest', icon: '🌍', desc: 'Travel the world and learn' },
               { name: 'Art Studio', icon: '🎨', desc: 'Express your creativity' },
-              { name: 'Music Maker', icon: '🎹', desc: 'Create your own melodies' },
             ].map((game, i) => (
               <motion.div
                 key={game.name}

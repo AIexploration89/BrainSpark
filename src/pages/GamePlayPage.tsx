@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
+import { TypingMaster } from '../games/typing-master';
+import { MemoryMatrix } from '../games/memory-matrix';
 
 // Game info mapping
 const gameInfo: Record<string, { name: string; icon: string; color: string; description: string }> = {
@@ -78,6 +80,15 @@ export function GamePlayPage() {
         </div>
       </div>
     );
+  }
+
+  // Route to actual game components
+  if (gameId === 'typing-master') {
+    return <TypingMaster />;
+  }
+
+  if (gameId === 'memory-matrix') {
+    return <MemoryMatrix />;
   }
 
   const colorClass = colorClasses[game.color];
