@@ -1,73 +1,109 @@
-# React + TypeScript + Vite
+# BrainSpark
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An educational gaming platform for kids featuring interactive learning games with a cyberpunk/neon aesthetic.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **4 Fully Implemented Games** with progressive difficulty levels
+- **Cyberpunk Visual Theme** with neon colors and glowing effects
+- **Progress Tracking** with star ratings and high scores
+- **Responsive Design** works on desktop and tablet
+- **Keyboard Support** for accessibility
 
-## React Compiler
+## Games
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Memory Matrix
+Challenge your memory with pattern recognition puzzles. Memorize highlighted cells and recreate the pattern.
+- 15 levels with increasing grid sizes (3x3 to 6x6)
+- Timed memorization phases
+- Star rating based on accuracy
 
-## Expanding the ESLint configuration
+### Code Quest
+Learn programming logic through visual block coding. Guide your character through mazes using commands.
+- 30 levels teaching loops, conditionals, and functions
+- Drag-and-drop command blocks
+- Step-by-step code execution visualization
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Physics Lab
+Explore physics concepts through 5 interactive experiments:
+- **Gravity Drop** - Compare fall rates of different masses
+- **Bounce Lab** - Experiment with elasticity and materials
+- **Pendulum Wave** - Observe harmonic motion patterns
+- **Ramp & Roll** - Study friction and acceleration
+- **Force Push** - Apply forces and see Newton's laws in action
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Math Basics
+Master arithmetic with an arcade-style math game featuring LED-style displays.
+- 5 operations: Addition, Subtraction, Multiplication, Division, Mixed
+- 24 levels from easy to expert
+- Combo system with score multipliers up to 3x
+- Numpad and multiple choice input modes
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Tech Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite 7** - Build tool
+- **TailwindCSS v4** - Styling
+- **Framer Motion** - Animations
+- **Zustand** - State management
+- **React Router** - Navigation
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/AIexploration89/BrainSpark.git
+cd BrainSpark
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app will be available at `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Build for Production
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+npm run preview
 ```
+
+## Project Structure
+
+```
+src/
+├── components/        # Reusable UI components
+├── games/            # Game modules
+│   ├── code-quest/   # Visual programming game
+│   ├── math-basics/  # Math operations game
+│   ├── memory-matrix/# Memory pattern game
+│   ├── physics-lab/  # Physics experiments
+│   └── typing-master/# Typing practice (WIP)
+├── pages/            # Route pages
+└── App.tsx           # Root component
+```
+
+## Roadmap
+
+- [ ] Typing Master - Keyboard typing practice
+- [ ] Mouse Expert - Mouse control training
+- [ ] Word Builder - Vocabulary and spelling
+- [ ] Rhythm & Reflex - Timing and coordination
+- [ ] User accounts and cloud progress sync
+- [ ] Leaderboards
+- [ ] Achievement system
+- [ ] Parent dashboard
+
+## License
+
+MIT
