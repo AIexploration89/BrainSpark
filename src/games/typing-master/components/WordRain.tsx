@@ -119,10 +119,8 @@ function WordExplosion({ x, y, onComplete }: { x: number; y: number; onComplete:
 // Enhanced falling word component
 function FallingWord({
   word,
-  onExplosion,
 }: {
   word: WordRainWord;
-  onExplosion: (x: number, y: number) => void;
 }) {
   const isMatching = word.typed.length > 0;
   const progress = word.typed.length / word.word.length;
@@ -430,7 +428,6 @@ export function WordRain({ difficulty, onGameOver }: WordRainProps) {
           <FallingWord
             key={word.id}
             word={word}
-            onExplosion={addExplosion}
           />
         ))}
       </AnimatePresence>

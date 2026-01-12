@@ -113,7 +113,6 @@ export function KeyboardVisualizer({
 
     // Trail effect for recently pressed keys
     if (trail && trailOpacity > 0.2) {
-      const color = trail.correct ? 'green' : 'red';
       return {
         className: trail.correct
           ? 'bg-neon-green/20 border-neon-green/50 text-neon-green'

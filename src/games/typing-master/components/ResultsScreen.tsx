@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import type { GameResults, TypingLevel } from '../types';
 import { calculateXP, getPerformanceRating } from '../utils/scoring';
 
