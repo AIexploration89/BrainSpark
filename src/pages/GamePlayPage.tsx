@@ -5,6 +5,7 @@ import { TypingMaster } from '../games/typing-master';
 import { MemoryMatrix } from '../games/memory-matrix';
 import { CodeQuest } from '../games/code-quest';
 import { PhysicsLab } from '../games/physics-lab';
+import { MathBasics } from '../games/math-basics';
 
 // Game info mapping
 const gameInfo: Record<string, { name: string; icon: string; color: string; description: string }> = {
@@ -99,6 +100,10 @@ export function GamePlayPage() {
 
   if (gameId === 'physics-lab') {
     return <PhysicsLab />;
+  }
+
+  if (gameId === 'math-basics') {
+    return <MathBasics />;
   }
 
   const colorClass = colorClasses[game.color];
