@@ -466,7 +466,6 @@ export const useMathProgressStore = create<MathProgressStore>()(
         };
 
         // Check if next level should be unlocked
-        const level = getLevelById(levelId);
         const updates: Record<number, LevelProgress> = { [levelId]: updated };
 
         // Find next level by checking unlock requirements

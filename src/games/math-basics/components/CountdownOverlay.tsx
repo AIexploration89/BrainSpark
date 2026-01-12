@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LEDNumber } from './EquationDisplay';
 
 interface CountdownOverlayProps {
   onComplete: () => void;

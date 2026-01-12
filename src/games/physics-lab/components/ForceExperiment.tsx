@@ -329,7 +329,6 @@ export function ForceExperiment({ onBack }: ForceExperimentProps) {
         if (Math.abs(box.vx) > 5 || Math.abs(box.vy) > 5) {
           const velScale = 0.3;
           const vEndX = box.x + box.vx * velScale;
-          const vEndY = box.y + box.vy * velScale;
 
           ctx.strokeStyle = '#00ff88';
           ctx.lineWidth = 3;

@@ -88,7 +88,6 @@ export function PendulumExperiment({ onBack }: PendulumExperimentProps) {
 
     const animate = (timestamp: number) => {
       if (!lastTimeRef.current) lastTimeRef.current = timestamp;
-      const deltaTime = Math.min(timestamp - lastTimeRef.current, 50) / 1000;
       lastTimeRef.current = timestamp;
 
       // Update physics at fixed timestep for stability

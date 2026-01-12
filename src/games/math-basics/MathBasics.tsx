@@ -2,12 +2,12 @@ import { useEffect, useCallback, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMathGameStore, useMathProgressStore } from './stores/mathStore';
 import { getNextLevelInOperation } from './data/levels';
-import type { Level, Operation, NumberAnimationState } from './types';
+import type { Level, NumberAnimationState } from './types';
 
 // Components
 import { EquationDisplay } from './components/EquationDisplay';
 import { AnswerInput, ChoiceInput } from './components/AnswerInput';
-import { ComboMeter, ComboMini } from './components/ComboMeter';
+import { ComboMeter } from './components/ComboMeter';
 import { LevelSelector, OperationSelector } from './components/LevelSelector';
 import { ResultsScreen } from './components/ResultsScreen';
 import { CountdownOverlay, TimerBar } from './components/CountdownOverlay';

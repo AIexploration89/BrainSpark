@@ -274,16 +274,6 @@ export function EquationDisplay({
   showResult = false,
   isCorrect,
 }: EquationDisplayProps) {
-  const getOperationSymbol = (op: string): string => {
-    switch (op) {
-      case 'addition': return '+';
-      case 'subtraction': return '−';
-      case 'multiplication': return '×';
-      case 'division': return '÷';
-      default: return '+';
-    }
-  };
-
   const resultColor = isCorrect ? 'neon-green' : 'neon-red';
   const displayAnswer = showResult ? String(problem.correctAnswer) : (userAnswer || '?');
   const answerColor = showResult

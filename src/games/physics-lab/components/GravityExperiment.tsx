@@ -1,8 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { usePhysicsEngine, createBall } from '../hooks/usePhysicsEngine';
-import { usePhysicsLabStore } from '../stores/physicsStore';
-import { GRAVITY_VALUES } from '../types';
 import type { PhysicsObject, TrailPoint } from '../types';
 
 interface GravityExperimentProps {
@@ -36,8 +34,8 @@ export function GravityExperiment({ onBack }: GravityExperimentProps) {
   const [isCustom, setIsCustom] = useState(false);
   const [dropTime, setDropTime] = useState<number | null>(null);
   const [dropStartTime, setDropStartTime] = useState<number | null>(null);
-  const [bounceCount, setBounceCount] = useState(0);
-  const [droppedObjects, setDroppedObjects] = useState<string[]>([]);
+  const [, setBounceCount] = useState(0);
+  const [, setDroppedObjects] = useState<string[]>([]);
 
   const gravity = isCustom ? customGravity : selectedPlanet.gravity;
 
@@ -45,7 +43,7 @@ export function GravityExperiment({ onBack }: GravityExperimentProps) {
     gravity,
     bounds: { width: 600, height: 500 },
     groundY: 450,
-    onCollision: (obj, type) => {
+    onCollision: (_obj, type) => {
       if (type === 'ground') {
         setBounceCount(c => c + 1);
         if (dropStartTime && !dropTime) {
@@ -454,7 +452,7 @@ function renderScene(
   trails: Map<string, TrailPoint[]>,
   showTrail: boolean,
   showVectors: boolean,
-  gravity: number
+  _gravity: number
 ) {
   const width = ctx.canvas.width;
   const height = ctx.canvas.height;

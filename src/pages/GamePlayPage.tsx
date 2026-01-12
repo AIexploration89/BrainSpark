@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
-import { TypingMaster } from '../games/typing-master';
 import { MemoryMatrix } from '../games/memory-matrix';
 import { CodeQuest } from '../games/code-quest';
 import { PhysicsLab } from '../games/physics-lab';
@@ -86,10 +85,6 @@ export function GamePlayPage() {
   }
 
   // Route to actual game components
-  if (gameId === 'typing-master') {
-    return <TypingMaster />;
-  }
-
   if (gameId === 'memory-matrix') {
     return <MemoryMatrix />;
   }

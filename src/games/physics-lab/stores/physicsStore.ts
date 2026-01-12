@@ -12,9 +12,8 @@ import type {
   RampSettings,
   BounceSettings,
   ForceSettings,
-  GRAVITY_VALUES,
 } from '../types';
-import { getExperiment, getChallengesForExperiment, SCORING } from '../data/experiments';
+import { getExperiment } from '../data/experiments';
 
 interface PhysicsLabStore {
   // Game state
@@ -215,7 +214,7 @@ export const usePhysicsLabStore = create<PhysicsLabStore>((set, get) => ({
 
   // Game controls
   pauseGame: () => {
-    const { gameState, isSimulationRunning } = get();
+    const { gameState } = get();
     if (gameState === 'playing') {
       set({
         gameState: 'paused',
