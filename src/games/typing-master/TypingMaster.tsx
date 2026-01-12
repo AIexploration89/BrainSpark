@@ -271,66 +271,386 @@ interface MainMenuProps {
   onBack: () => void;
 }
 
-function MainMenu({ onStart, onBack }: MainMenuProps) {
+// Matrix-style code characters for the rain effect
+const codeChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*(){}[]|/<>~';
+
+// Code Rain Column Component
+function CodeRainColumn({ delay, duration, left }: { delay: number; duration: number; left: string }) {
+  const chars = Array.from({ length: 20 }, () =>
+    codeChars[Math.floor(Math.random() * codeChars.length)]
+  );
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
+    <motion.div
+      initial={{ y: '-100%' }}
+      animate={{ y: '100vh' }}
+      transition={{
+        duration,
+        delay,
+        repeat: Infinity,
+        ease: 'linear',
+      }}
+      style={{ left }}
+      className="absolute top-0 flex flex-col font-mono text-xs text-neon-cyan/30"
+    >
+      {chars.map((char, i) => (
+        <span
+          key={i}
+          className={i === 0 ? 'text-neon-cyan text-sm font-bold' : ''}
+          style={{ opacity: 1 - (i * 0.05) }}
+        >
+          {char}
+        </span>
+      ))}
+    </motion.div>
+  );
+}
+
+function MainMenu({ onStart, onBack }: MainMenuProps) {
+  const { progress } = useTypingProgressStore();
+  const completedLevels = Object.values(progress.levels).filter(l => l.completed).length;
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Matrix Code Rain Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+        {Array.from({ length: 25 }).map((_, i) => (
+          <CodeRainColumn
+            key={i}
+            delay={Math.random() * 5}
+            duration={8 + Math.random() * 8}
+            left={`${i * 4}%`}
+          />
+        ))}
+      </div>
+
+      {/* Scanline overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-10"
+        style={{
+          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,245,255,0.03) 2px, rgba(0,245,255,0.03) 4px)',
+        }}
+      />
+
+      {/* Animated grid background */}
+      <div
+        className="absolute inset-0 opacity-5"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(0,245,255,0.3) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,245,255,0.3) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px',
+        }}
+      />
+
+      {/* Glowing orbs */}
       <motion.div
-        initial={{ y: -20, opacity: 0 }}
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.2, 0.4, 0.2],
+        }}
+        transition={{ duration: 4, repeat: Infinity }}
+        className="absolute top-1/3 left-1/4 w-96 h-96 bg-neon-cyan/20 rounded-full blur-[100px]"
+      />
+      <motion.div
+        animate={{
+          scale: [1.2, 1, 1.2],
+          opacity: [0.15, 0.3, 0.15],
+        }}
+        transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+        className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-neon-purple/20 rounded-full blur-[100px]"
+      />
+
+      {/* Main Content */}
+      <motion.div
+        initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="text-center mb-12"
+        className="text-center mb-10 relative z-10"
       >
-        <div className="text-6xl mb-4">⌨️</div>
-        <h1 className="text-4xl sm:text-5xl font-display font-bold text-white mb-4">
-          Typing <span className="text-neon-cyan">Master</span>
-        </h1>
-        <p className="text-text-secondary text-lg max-w-md">
-          Learn to type like a pro! From single letters to full paragraphs.
-        </p>
+        {/* Animated Terminal Keyboard Icon */}
+        <motion.div
+          className="relative inline-block mb-6"
+        >
+          {/* Glow ring */}
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.5, 0.2, 0.5],
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="absolute inset-0 w-28 h-28 mx-auto rounded-2xl bg-neon-cyan/30 blur-xl"
+            style={{ left: '50%', transform: 'translateX(-50%)' }}
+          />
+
+          {/* Keyboard container */}
+          <motion.div
+            animate={{
+              rotateY: [0, 5, -5, 0],
+            }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            className="relative w-28 h-28 mx-auto flex items-center justify-center"
+          >
+            {/* Stylized keyboard */}
+            <div className="relative">
+              <motion.div
+                className="w-24 h-16 rounded-lg bg-bg-secondary border-2 border-neon-cyan/50 shadow-[0_0_30px_rgba(0,245,255,0.4)] flex flex-col items-center justify-center gap-1 p-2"
+                animate={{
+                  boxShadow: [
+                    '0 0 20px rgba(0,245,255,0.3)',
+                    '0 0 40px rgba(0,245,255,0.5)',
+                    '0 0 20px rgba(0,245,255,0.3)',
+                  ],
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                {/* Mini keyboard rows */}
+                {[0, 1, 2].map((row) => (
+                  <div key={row} className="flex gap-0.5">
+                    {Array.from({ length: row === 2 ? 7 : 8 }).map((_, i) => (
+                      <motion.div
+                        key={i}
+                        animate={{
+                          backgroundColor: Math.random() > 0.7
+                            ? ['rgba(0,245,255,0.2)', 'rgba(0,245,255,0.6)', 'rgba(0,245,255,0.2)']
+                            : 'rgba(255,255,255,0.1)',
+                        }}
+                        transition={{
+                          duration: 0.5,
+                          repeat: Infinity,
+                          delay: Math.random() * 2,
+                          repeatDelay: Math.random() * 3,
+                        }}
+                        className="w-2 h-2 rounded-[2px] bg-white/10"
+                      />
+                    ))}
+                  </div>
+                ))}
+                {/* Space bar */}
+                <motion.div
+                  animate={{
+                    backgroundColor: ['rgba(0,245,255,0.1)', 'rgba(0,245,255,0.4)', 'rgba(0,245,255,0.1)'],
+                  }}
+                  transition={{ duration: 1, repeat: Infinity, delay: 0.5 }}
+                  className="w-12 h-2 rounded-[2px] bg-neon-cyan/20"
+                />
+              </motion.div>
+
+              {/* Typing indicator */}
+              <motion.div
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 0.8, repeat: Infinity }}
+                className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-1 h-3 bg-neon-cyan rounded-full shadow-[0_0_10px_rgba(0,245,255,0.8)]"
+              />
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Title with glitch effect */}
+        <div className="relative">
+          <motion.h1
+            className="text-5xl sm:text-6xl font-display font-bold text-white mb-2 tracking-tight"
+            style={{ textShadow: '0 0 40px rgba(0,245,255,0.3)' }}
+          >
+            TYPING{' '}
+            <motion.span
+              className="text-neon-cyan inline-block"
+              animate={{
+                textShadow: [
+                  '0 0 20px rgba(0,245,255,0.5), 0 0 40px rgba(0,245,255,0.3)',
+                  '0 0 30px rgba(0,245,255,0.8), 0 0 60px rgba(0,245,255,0.5)',
+                  '0 0 20px rgba(0,245,255,0.5), 0 0 40px rgba(0,245,255,0.3)',
+                ],
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              MASTER
+            </motion.span>
+          </motion.h1>
+
+          {/* Subtitle with terminal cursor */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-text-secondary text-lg flex items-center justify-center gap-1 font-mono"
+          >
+            <span className="text-neon-cyan/60">&gt;</span>
+            <span>Initialize typing protocol</span>
+            <motion.span
+              animate={{ opacity: [1, 0, 1] }}
+              transition={{ duration: 1, repeat: Infinity }}
+              className="inline-block w-2 h-5 bg-neon-cyan ml-1"
+            />
+          </motion.p>
+        </div>
       </motion.div>
 
+      {/* Action Buttons */}
       <motion.div
-        initial={{ y: 20, opacity: 0 }}
+        initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="flex flex-col gap-4 w-full max-w-xs"
+        transition={{ delay: 0.3 }}
+        className="flex flex-col gap-4 w-full max-w-sm relative z-10"
       >
+        {/* Start Button */}
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
           onClick={onStart}
-          className="w-full py-4 px-8 rounded-xl font-display font-semibold text-lg uppercase tracking-wider bg-gradient-to-r from-neon-cyan to-neon-purple text-white shadow-[0_0_20px_rgba(0,245,255,0.4)] hover:shadow-[0_0_30px_rgba(0,245,255,0.6)] transition-all"
+          className="group relative w-full py-5 px-8 rounded-xl font-display font-bold text-lg uppercase tracking-widest overflow-hidden"
         >
-          Start Typing
+          {/* Button glow */}
+          <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-cyan bg-[length:200%_100%] animate-gradient-x" />
+
+          {/* Button border animation */}
+          <div className="absolute inset-[2px] bg-bg-primary rounded-[10px]" />
+
+          {/* Inner glow on hover */}
+          <div className="absolute inset-[2px] rounded-[10px] bg-gradient-to-r from-neon-cyan/20 to-neon-purple/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+          {/* Button text */}
+          <span className="relative z-10 flex items-center justify-center gap-3 text-white">
+            <motion.span
+              animate={{ x: [0, 3, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              ▶
+            </motion.span>
+            START TYPING
+          </span>
+
+          {/* Corner accents */}
+          <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-neon-cyan" />
+          <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-neon-cyan" />
+          <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-neon-purple" />
+          <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-neon-purple" />
         </motion.button>
 
+        {/* Back Button */}
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.02, x: -5 }}
           whileTap={{ scale: 0.98 }}
           onClick={onBack}
-          className="w-full py-3 px-6 rounded-xl font-display font-semibold uppercase tracking-wider text-text-secondary hover:text-white transition-colors"
+          className="group w-full py-3 px-6 rounded-xl font-display font-semibold uppercase tracking-wider text-text-secondary hover:text-neon-cyan transition-all flex items-center justify-center gap-2"
         >
-          ← Back to Games
+          <motion.span
+            className="group-hover:-translate-x-1 transition-transform"
+          >
+            ←
+          </motion.span>
+          Back to Games
         </motion.button>
       </motion.div>
 
-      {/* Quick stats */}
+      {/* Stats Cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="mt-12 flex gap-4 sm:gap-6 relative z-10"
+      >
+        {[
+          { value: '8', label: 'LEVELS', color: 'cyan', icon: '◆' },
+          { value: '5', label: 'MODES', color: 'pink', icon: '◇' },
+          { value: `${completedLevels}`, label: 'COMPLETE', color: 'green', icon: '✓' },
+        ].map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 + i * 0.1 }}
+            whileHover={{ y: -5, scale: 1.05 }}
+            className={`
+              relative px-6 py-4 rounded-lg border backdrop-blur-sm
+              ${stat.color === 'cyan' ? 'border-neon-cyan/30 bg-neon-cyan/5' : ''}
+              ${stat.color === 'pink' ? 'border-neon-pink/30 bg-neon-pink/5' : ''}
+              ${stat.color === 'green' ? 'border-neon-green/30 bg-neon-green/5' : ''}
+            `}
+          >
+            {/* Animated corner */}
+            <motion.div
+              animate={{ opacity: [0.3, 1, 0.3] }}
+              transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+              className={`absolute top-0 right-0 w-2 h-2
+                ${stat.color === 'cyan' ? 'bg-neon-cyan' : ''}
+                ${stat.color === 'pink' ? 'bg-neon-pink' : ''}
+                ${stat.color === 'green' ? 'bg-neon-green' : ''}
+              `}
+            />
+
+            <div className={`text-3xl font-display font-bold mb-1
+              ${stat.color === 'cyan' ? 'text-neon-cyan' : ''}
+              ${stat.color === 'pink' ? 'text-neon-pink' : ''}
+              ${stat.color === 'green' ? 'text-neon-green' : ''}
+            `}>
+              <span className="text-lg opacity-50 mr-1">{stat.icon}</span>
+              {stat.value}
+            </div>
+            <div className="text-[10px] text-text-muted uppercase tracking-widest font-mono">
+              {stat.label}
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* How to Play Terminal */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="mt-12 flex gap-8 text-center"
+        transition={{ delay: 0.8 }}
+        className="mt-10 w-full max-w-md relative z-10"
       >
-        <div>
-          <div className="text-2xl font-display font-bold text-neon-cyan">8</div>
-          <div className="text-xs text-text-muted uppercase">Levels</div>
-        </div>
-        <div>
-          <div className="text-2xl font-display font-bold text-neon-pink">5</div>
-          <div className="text-xs text-text-muted uppercase">Modes</div>
-        </div>
-        <div>
-          <div className="text-2xl font-display font-bold text-neon-green">∞</div>
-          <div className="text-xs text-text-muted uppercase">Fun</div>
+        <div className="bg-bg-secondary/80 backdrop-blur-sm rounded-xl border border-neon-cyan/20 overflow-hidden">
+          {/* Terminal header */}
+          <div className="flex items-center gap-2 px-4 py-2 bg-bg-tertiary/50 border-b border-neon-cyan/10">
+            <div className="flex gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-neon-red/60" />
+              <div className="w-2.5 h-2.5 rounded-full bg-neon-yellow/60" />
+              <div className="w-2.5 h-2.5 rounded-full bg-neon-green/60" />
+            </div>
+            <span className="text-xs text-text-muted font-mono ml-2">protocol.init</span>
+          </div>
+
+          {/* Terminal content */}
+          <div className="p-4 font-mono text-sm space-y-2">
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1 }}
+              className="flex items-start gap-2"
+            >
+              <span className="text-neon-cyan">01</span>
+              <span className="text-text-secondary">Choose your level</span>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.2 }}
+              className="flex items-start gap-2"
+            >
+              <span className="text-neon-cyan">02</span>
+              <span className="text-text-secondary">Select a game mode</span>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.4 }}
+              className="flex items-start gap-2"
+            >
+              <span className="text-neon-cyan">03</span>
+              <span className="text-text-secondary">Type fast & accurate!</span>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.6 }}
+              className="flex items-start gap-2"
+            >
+              <span className="text-neon-green">✓</span>
+              <span className="text-neon-green">Build streaks for bonus XP</span>
+            </motion.div>
+          </div>
         </div>
       </motion.div>
     </div>
