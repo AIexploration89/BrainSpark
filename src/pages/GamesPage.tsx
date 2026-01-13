@@ -113,6 +113,17 @@ const games: Game[] = [
     difficulty: 'medium',
     isNew: true,
   },
+  {
+    id: 'geography-explorer',
+    name: 'Geography Explorer',
+    description: 'Discover countries, capitals, flags, and landmarks from around the world!',
+    icon: '🌍',
+    color: 'cyan',
+    category: 'academic',
+    ageRange: '5-12',
+    difficulty: 'medium',
+    isNew: true,
+  },
 ];
 
 // Mock progress
@@ -273,8 +284,8 @@ export function GamesPage() {
             {[
               { name: 'Animal Kingdom', icon: '🦁', desc: 'Learn about wildlife and habitats' },
               { name: 'Science Explorer', icon: '🔭', desc: 'Discover the wonders of science' },
-              { name: 'Geography Quest', icon: '🌍', desc: 'Travel the world and learn' },
               { name: 'Art Studio', icon: '🎨', desc: 'Express your creativity' },
+              { name: 'History Heroes', icon: '🏛️', desc: 'Journey through time' },
             ].map((game, i) => (
               <motion.div
                 key={game.name}

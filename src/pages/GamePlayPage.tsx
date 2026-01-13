@@ -8,6 +8,7 @@ import { MathBasics } from '../games/math-basics';
 import { TypingMaster } from '../games/typing-master';
 import { WordBuilder } from '../games/word-builder';
 import { SpaceExploration } from '../games/space-exploration';
+import { GeographyExplorer } from '../games/geography-explorer';
 
 // Game info mapping
 const gameInfo: Record<string, { name: string; icon: string; color: string; description: string }> = {
@@ -65,6 +66,12 @@ const gameInfo: Record<string, { name: string; icon: string; color: string; desc
     color: 'purple',
     description: 'Journey through our solar system and learn about space',
   },
+  'geography-explorer': {
+    name: 'Geography Explorer',
+    icon: '🌍',
+    color: 'cyan',
+    description: 'Discover countries, capitals, flags, and landmarks',
+  },
 };
 
 const colorClasses: Record<string, string> = {
@@ -120,6 +127,10 @@ export function GamePlayPage() {
 
   if (gameId === 'space-exploration') {
     return <SpaceExploration />;
+  }
+
+  if (gameId === 'geography-explorer') {
+    return <GeographyExplorer />;
   }
 
   const colorClass = colorClasses[game.color];

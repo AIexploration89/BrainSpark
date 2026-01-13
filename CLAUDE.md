@@ -118,6 +118,19 @@ games/[game-name]/
 - LED 7-segment display aesthetic
 - Combo/streak system with multipliers
 
+### 5. Space Exploration
+- Solar system exploration with 8 planets + dwarf planets
+- Orbit visualization and planet facts
+- Space quiz with progressive difficulty
+
+### 6. Geography Explorer
+- 4 game modes: Flag Quiz, Capital Match, Landmark Hunter, Continent Challenge
+- 24 levels across 7 continents
+- ~60 countries with capitals, flags, and fun facts
+- ~40 famous landmarks with descriptions
+- Explorer rank progression system
+- Combo/streak multipliers and star rating
+
 ## Adding New Games
 
 1. Create folder: `src/games/[game-name]/`
@@ -177,19 +190,19 @@ npm run preview  # Preview production build
 ## Learnings & Best Practices
 
 ### [2026-01-13] TypeScript - Unused Variables Break Production Build
-**Context:** Cloudflare Pages build failed after adding Space Exploration game
+**Context:** Cloudflare Pages build failed after adding Space Exploration and Geography Explorer games
 **Problem:** TypeScript strict mode treats unused imports/variables as errors (TS6133, TS6196). Local dev server doesn't catch these but `tsc -b` and production builds fail.
 **Solution:**
 - Always run `npx tsc -b` before committing new code
 - Only destructure variables you actually use: `const { used } = store` not `const { used, unused } = store`
 - Prefix required-but-unused parameters with underscore: `(_planetId) => {}`
 - Remove unused type imports: `import type { Used } from './types'` not `import type { Used, Unused }`
-**Files affected:** SpaceExploration.tsx, spaceStore.ts, LevelSelector.tsx, PlanetCard.tsx, SolarSystem.tsx, SpaceQuiz.tsx
+**Files affected:** SpaceExploration.tsx, spaceStore.ts, LevelSelector.tsx, PlanetCard.tsx, SolarSystem.tsx, SpaceQuiz.tsx, geoStore.ts, ModeSelector.tsx, levels.ts, GeographyExplorer.tsx
 **Tags:** #typescript #build #cloudflare
-**Frequency:** 1
+**Frequency:** 2
 
 ### [2026-01-13] Game Module - Update GamesPage When Adding New Games
-**Context:** Added Space Exploration game
+**Context:** Added Space Exploration, Geography Explorer games
 **Problem:** Need to update multiple files when adding a new game, easy to miss one
 **Solution:** Checklist for adding new games:
 1. Create game folder with all components
@@ -198,4 +211,18 @@ npm run preview  # Preview production build
 4. Remove from "Coming Soon" section if it was listed there
 5. Run `npx tsc -b` to verify build
 **Tags:** #games #checklist
+**Frequency:** 2
+
+### [2026-01-13] Game Pattern - Quiz Game with Multiple Modes
+**Context:** Implemented Geography Explorer with 4 game modes (flag-quiz, capital-match, landmark-hunter, continent-challenge)
+**Problem:** Need flexible quiz structure supporting different question types, difficulties, and progression
+**Solution:** Quiz game architecture pattern:
+- Use state machine: menu → mode-select → region-select → level-select → countdown → playing → paused → results
+- Separate stores: useGameStore (ephemeral game state) + useProgressStore (persisted with zustand persist)
+- Question generator function that creates questions dynamically based on level config
+- Combo/streak system with multipliers for engagement
+- Star rating based on accuracy thresholds
+- Level unlock requirements based on previous level scores
+**Files:** GeographyExplorer.tsx, geoStore.ts, levels.ts
+**Tags:** #games #quiz #pattern #zustand
 **Frequency:** 1
