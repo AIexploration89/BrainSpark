@@ -9,6 +9,7 @@ import { TypingMaster } from '../games/typing-master';
 import { WordBuilder } from '../games/word-builder';
 import { SpaceExploration } from '../games/space-exploration';
 import { GeographyExplorer } from '../games/geography-explorer';
+import { ScienceExplorer } from '../games/science-explorer';
 
 // Game info mapping
 const gameInfo: Record<string, { name: string; icon: string; color: string; description: string }> = {
@@ -72,6 +73,12 @@ const gameInfo: Record<string, { name: string; icon: string; color: string; desc
     color: 'cyan',
     description: 'Discover countries, capitals, flags, and landmarks',
   },
+  'science-explorer': {
+    name: 'Science Explorer',
+    icon: '🔬',
+    color: 'green',
+    description: 'Discover the wonders of Biology, Chemistry, Physics, and Earth Science',
+  },
 };
 
 const colorClasses: Record<string, string> = {
@@ -131,6 +138,10 @@ export function GamePlayPage() {
 
   if (gameId === 'geography-explorer') {
     return <GeographyExplorer />;
+  }
+
+  if (gameId === 'science-explorer') {
+    return <ScienceExplorer />;
   }
 
   const colorClass = colorClasses[game.color];

@@ -124,6 +124,18 @@ const games: Game[] = [
     difficulty: 'medium',
     isNew: true,
   },
+  {
+    id: 'science-explorer',
+    name: 'Science Explorer',
+    description: 'Discover Biology, Chemistry, Physics, and Earth Science through fun experiments!',
+    icon: '🔬',
+    color: 'green',
+    category: 'academic',
+    ageRange: '5-12',
+    difficulty: 'medium',
+    isNew: true,
+    isHot: true,
+  },
 ];
 
 // Mock progress
@@ -283,9 +295,9 @@ export function GamesPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { name: 'Animal Kingdom', icon: '🦁', desc: 'Learn about wildlife and habitats' },
-              { name: 'Science Explorer', icon: '🔭', desc: 'Discover the wonders of science' },
               { name: 'Art Studio', icon: '🎨', desc: 'Express your creativity' },
               { name: 'History Heroes', icon: '🏛️', desc: 'Journey through time' },
+              { name: 'Music Maker', icon: '🎵', desc: 'Create melodies and learn music' },
             ].map((game, i) => (
               <motion.div
                 key={game.name}
