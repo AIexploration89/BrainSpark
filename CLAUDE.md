@@ -202,7 +202,7 @@ npm run preview  # Preview production build
 **Frequency:** 4
 
 ### [2026-01-13] Game Module - Update GamesPage When Adding New Games
-**Context:** Added Space Exploration, Geography Explorer, Science Explorer, History Heroes, Animal Kingdom games
+**Context:** Added Space Exploration, Geography Explorer, Science Explorer, History Heroes, Animal Kingdom, Puzzle World games
 **Problem:** Need to update multiple files when adding a new game, easy to miss one
 **Solution:** Checklist for adding new games:
 1. Create game folder with all components
@@ -211,7 +211,7 @@ npm run preview  # Preview production build
 4. Remove from "Coming Soon" section if it was listed there
 5. Run `npx tsc -b` to verify build
 **Tags:** #games #checklist
-**Frequency:** 5
+**Frequency:** 6
 
 ### [2026-01-13] Game Pattern - Quiz Game with Categories/Modes
 **Context:** Implemented Geography Explorer (4 game modes), Science Explorer (4 science categories), History Heroes (4 historical eras), and Animal Kingdom (4 animal categories: mammals, birds, ocean-life, reptiles-amphibians)
@@ -227,3 +227,20 @@ npm run preview  # Preview production build
 **Files:** GeographyExplorer.tsx, geoStore.ts, ScienceExplorer.tsx, scienceStore.ts, HistoryHeroes.tsx, historyStore.ts, AnimalKingdom.tsx, animalStore.ts, levels.ts
 **Tags:** #games #quiz #pattern #zustand
 **Frequency:** 4
+
+### [2026-01-13] Game Pattern - Puzzle Game with Multiple Modes
+**Context:** Implemented Puzzle World with 4 puzzle modes: Sliding (number tile puzzles), Pattern Match (memory cards), Sequence (pattern completion), Jigsaw Lite (click-to-place pieces)
+**Problem:** Need interactive puzzle mechanics that work well for kids without complex drag-and-drop
+**Solution:** Puzzle game architecture pattern:
+- State machine: menu → mode-select → level-select → countdown → playing → paused → results
+- Click-based interactions instead of drag-and-drop (more reliable, touch-friendly)
+- For sliding puzzles: check solvability before presenting (count inversions)
+- For pattern matching: Fisher-Yates shuffle with matched pair tracking
+- For sequences: multiple choice answers with visual feedback
+- For jigsaw: click-to-select piece, click-to-place on grid (avoids drag-and-drop complexity)
+- Performance scoring based on moves/time, not just completion
+- Hint system with score penalty for sliding puzzles
+- Holographic arcade aesthetic: CRT scanlines, rainbow shimmer overlays, corner accents, animated grids
+**Files:** puzzle-world/PuzzleWorld.tsx, puzzleStore.ts, SlidingPuzzle.tsx, PatternMatch.tsx, SequencePuzzle.tsx, JigsawLite.tsx
+**Tags:** #games #puzzle #pattern #zustand #aesthetic
+**Frequency:** 1

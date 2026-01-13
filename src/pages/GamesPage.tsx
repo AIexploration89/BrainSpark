@@ -159,6 +159,18 @@ const games: Game[] = [
     isNew: true,
     isHot: true,
   },
+  {
+    id: 'puzzle-world',
+    name: 'Puzzle World',
+    description: 'Challenge your brain with sliding puzzles, pattern matching, sequences, and jigsaws!',
+    icon: '🧩',
+    color: 'cyan',
+    category: 'cognitive',
+    ageRange: '5-12',
+    difficulty: 'medium',
+    isNew: true,
+    isHot: true,
+  },
 ];
 
 // Mock progress
@@ -320,7 +332,7 @@ export function GamesPage() {
               { name: 'Art Studio', icon: '🎨', desc: 'Express your creativity' },
               { name: 'Music Maker', icon: '🎵', desc: 'Create melodies and learn music' },
               { name: 'Language Lab', icon: '🗣️', desc: 'Learn new languages with fun' },
-              { name: 'Puzzle World', icon: '🧩', desc: 'Solve challenging puzzles' },
+              { name: 'Story Builder', icon: '📖', desc: 'Create interactive stories' },
             ].map((game, i) => (
               <motion.div
                 key={game.name}

@@ -12,6 +12,7 @@ import { GeographyExplorer } from '../games/geography-explorer';
 import { ScienceExplorer } from '../games/science-explorer';
 import { HistoryHeroes } from '../games/history-heroes';
 import { AnimalKingdom } from '../games/animal-kingdom';
+import { PuzzleWorld } from '../games/puzzle-world';
 
 // Game info mapping
 const gameInfo: Record<string, { name: string; icon: string; color: string; description: string }> = {
@@ -93,6 +94,12 @@ const gameInfo: Record<string, { name: string; icon: string; color: string; desc
     color: 'green',
     description: 'Discover amazing animals, their habitats, and fascinating facts',
   },
+  'puzzle-world': {
+    name: 'Puzzle World',
+    icon: '🧩',
+    color: 'cyan',
+    description: 'Challenge your brain with sliding puzzles, pattern matching, sequences, and jigsaws',
+  },
 };
 
 const colorClasses: Record<string, string> = {
@@ -164,6 +171,10 @@ export function GamePlayPage() {
 
   if (gameId === 'animal-kingdom') {
     return <AnimalKingdom />;
+  }
+
+  if (gameId === 'puzzle-world') {
+    return <PuzzleWorld />;
   }
 
   const colorClass = colorClasses[game.color];
