@@ -116,7 +116,6 @@ export function LevelSelector({
                   isUnlocked={isUnlocked}
                   isCompleted={isCompleted}
                   onClick={() => isUnlocked && onSelectMission(mission.id)}
-                  totalStars={progress.totalStars}
                 />
               );
             })}
@@ -277,7 +276,6 @@ interface MissionCardProps {
   isUnlocked: boolean;
   isCompleted: boolean;
   onClick: () => void;
-  totalStars: number;
 }
 
 function MissionCard({
@@ -286,7 +284,6 @@ function MissionCard({
   isUnlocked,
   isCompleted,
   onClick,
-  totalStars,
 }: MissionCardProps) {
   return (
     <motion.button

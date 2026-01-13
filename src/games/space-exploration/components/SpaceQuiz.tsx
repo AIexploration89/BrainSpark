@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { QuizSession, QuizQuestion } from '../types';
+import type { QuizSession } from '../types';
 
 interface SpaceQuizProps {
   session: QuizSession;

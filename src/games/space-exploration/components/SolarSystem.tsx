@@ -246,7 +246,7 @@ export function SolarSystem({
 
 function PlanetTooltip({ planetId }: { planetId: PlanetId }) {
   const planet = PLANETS.find(p => p.id === planetId);
-  const { isPlanetUnlocked, progress } = useSpaceProgressStore();
+  const { isPlanetUnlocked } = useSpaceProgressStore();
 
   if (!planet) return null;
 

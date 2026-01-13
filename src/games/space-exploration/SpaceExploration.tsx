@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSpaceGameStore, useSpaceProgressStore } from './stores/spaceStore';
-import { getRandomQuestions, getLevelById } from './data/quizzes';
+import { getRandomQuestions } from './data/quizzes';
 import { getMissionById } from './data/missions';
 import type { Level, GameMode, PlanetId } from './types';
 

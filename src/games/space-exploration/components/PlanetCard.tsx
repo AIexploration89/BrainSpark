@@ -121,7 +121,7 @@ export function PlanetCard({
               className="mt-4 flex items-center gap-2"
             >
               <div className="flex gap-1">
-                {planet.facts.map((fact, i) => (
+                {planet.facts.map((fact) => (
                   <div
                     key={fact.id}
                     className={`w-3 h-3 rounded-full ${

@@ -16,8 +16,7 @@ import type {
 } from '../types';
 import { SCORING, STAR_THRESHOLDS, RANK_THRESHOLDS } from '../types';
 import { getPlanetById, PLANETS } from '../data/planets';
-import { getRandomQuestions, getLevelById } from '../data/quizzes';
-import { getMissionById } from '../data/missions';
+import { getLevelById } from '../data/quizzes';
 
 // ============================================================================
 // GAME STORE - Current game session state
@@ -279,7 +278,7 @@ export const useSpaceGameStore = create<SpaceGameStore>((set, get) => ({
   },
 
   completeGame: () => {
-    const { gameMode, visitedPlanets, discoveredFacts, currentLevel } = get();
+    const { gameMode, visitedPlanets, discoveredFacts } = get();
 
     // For explore mode
     if (gameMode === 'explore') {
@@ -429,7 +428,7 @@ export const useSpaceProgressStore = create<SpaceProgressStore>()(
         }
       },
 
-      markPlanetVisited: (planetId) => {
+      markPlanetVisited: (_planetId) => {
         // This is tracked per-session in the game store
       },
 
