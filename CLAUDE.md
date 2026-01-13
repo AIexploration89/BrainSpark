@@ -155,7 +155,31 @@ npm run preview  # Preview production build
 
 ## Games Yet to Implement
 
-- Typing Master (folder exists, needs implementation)
 - Mouse Expert
-- Word Builder
 - Rhythm & Reflex
+
+## Learnings & Best Practices
+
+### [2026-01-13] TypeScript - Unused Variables Break Production Build
+**Context:** Cloudflare Pages build failed after adding Space Exploration game
+**Problem:** TypeScript strict mode treats unused imports/variables as errors (TS6133, TS6196). Local dev server doesn't catch these but `tsc -b` and production builds fail.
+**Solution:**
+- Always run `npx tsc -b` before committing new code
+- Only destructure variables you actually use: `const { used } = store` not `const { used, unused } = store`
+- Prefix required-but-unused parameters with underscore: `(_planetId) => {}`
+- Remove unused type imports: `import type { Used } from './types'` not `import type { Used, Unused }`
+**Files affected:** SpaceExploration.tsx, spaceStore.ts, LevelSelector.tsx, PlanetCard.tsx, SolarSystem.tsx, SpaceQuiz.tsx
+**Tags:** #typescript #build #cloudflare
+**Frequency:** 1
+
+### [2026-01-13] Game Module - Update GamesPage When Adding New Games
+**Context:** Added Space Exploration game
+**Problem:** Need to update multiple files when adding a new game, easy to miss one
+**Solution:** Checklist for adding new games:
+1. Create game folder with all components
+2. Add to `GamePlayPage.tsx` - import and routing
+3. Add to `GamesPage.tsx` - games array
+4. Remove from "Coming Soon" section if it was listed there
+5. Run `npx tsc -b` to verify build
+**Tags:** #games #checklist
+**Frequency:** 1
