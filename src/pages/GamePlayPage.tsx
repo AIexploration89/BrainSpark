@@ -11,6 +11,7 @@ import { SpaceExploration } from '../games/space-exploration';
 import { GeographyExplorer } from '../games/geography-explorer';
 import { ScienceExplorer } from '../games/science-explorer';
 import { HistoryHeroes } from '../games/history-heroes';
+import { AnimalKingdom } from '../games/animal-kingdom';
 
 // Game info mapping
 const gameInfo: Record<string, { name: string; icon: string; color: string; description: string }> = {
@@ -86,6 +87,12 @@ const gameInfo: Record<string, { name: string; icon: string; color: string; desc
     color: 'yellow',
     description: 'Travel through time and discover the heroes who shaped our world',
   },
+  'animal-kingdom': {
+    name: 'Animal Kingdom',
+    icon: '🦁',
+    color: 'green',
+    description: 'Discover amazing animals, their habitats, and fascinating facts',
+  },
 };
 
 const colorClasses: Record<string, string> = {
@@ -153,6 +160,10 @@ export function GamePlayPage() {
 
   if (gameId === 'history-heroes') {
     return <HistoryHeroes />;
+  }
+
+  if (gameId === 'animal-kingdom') {
+    return <AnimalKingdom />;
   }
 
   const colorClass = colorClasses[game.color];

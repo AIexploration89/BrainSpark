@@ -190,19 +190,19 @@ npm run preview  # Preview production build
 ## Learnings & Best Practices
 
 ### [2026-01-13] TypeScript - Unused Variables Break Production Build
-**Context:** Cloudflare Pages build failed after adding Space Exploration, Geography Explorer, and Science Explorer games
+**Context:** Build failed after adding Space Exploration, Geography Explorer, Science Explorer, History Heroes, and Animal Kingdom games
 **Problem:** TypeScript strict mode treats unused imports/variables as errors (TS6133, TS6196). Local dev server doesn't catch these but `tsc -b` and production builds fail.
 **Solution:**
 - Always run `npx tsc -b` before committing new code
 - Only destructure variables you actually use: `const { used } = store` not `const { used, unused } = store`
 - Prefix required-but-unused parameters with underscore: `(_planetId) => {}`
 - Remove unused type imports: `import type { Used } from './types'` not `import type { Used, Unused }`
-**Files affected:** SpaceExploration.tsx, spaceStore.ts, LevelSelector.tsx, PlanetCard.tsx, SolarSystem.tsx, SpaceQuiz.tsx, geoStore.ts, ModeSelector.tsx, levels.ts, GeographyExplorer.tsx, ScienceExplorer.tsx, scienceStore.ts, questions.ts
+**Files affected:** SpaceExploration.tsx, spaceStore.ts, LevelSelector.tsx, PlanetCard.tsx, SolarSystem.tsx, SpaceQuiz.tsx, geoStore.ts, ModeSelector.tsx, levels.ts, GeographyExplorer.tsx, ScienceExplorer.tsx, scienceStore.ts, questions.ts, animal-kingdom/data/levels.ts
 **Tags:** #typescript #build #cloudflare
-**Frequency:** 3
+**Frequency:** 4
 
 ### [2026-01-13] Game Module - Update GamesPage When Adding New Games
-**Context:** Added Space Exploration, Geography Explorer, Science Explorer, History Heroes games
+**Context:** Added Space Exploration, Geography Explorer, Science Explorer, History Heroes, Animal Kingdom games
 **Problem:** Need to update multiple files when adding a new game, easy to miss one
 **Solution:** Checklist for adding new games:
 1. Create game folder with all components
@@ -211,10 +211,10 @@ npm run preview  # Preview production build
 4. Remove from "Coming Soon" section if it was listed there
 5. Run `npx tsc -b` to verify build
 **Tags:** #games #checklist
-**Frequency:** 4
+**Frequency:** 5
 
 ### [2026-01-13] Game Pattern - Quiz Game with Categories/Modes
-**Context:** Implemented Geography Explorer (4 game modes), Science Explorer (4 science categories), and History Heroes (4 historical eras: ancient, medieval, renaissance, modern)
+**Context:** Implemented Geography Explorer (4 game modes), Science Explorer (4 science categories), History Heroes (4 historical eras), and Animal Kingdom (4 animal categories: mammals, birds, ocean-life, reptiles-amphibians)
 **Problem:** Need flexible quiz structure supporting different question types, difficulties, and progression
 **Solution:** Quiz game architecture pattern:
 - Use state machine: menu → category-select → level-select → countdown → playing → paused → results
@@ -224,6 +224,6 @@ npm run preview  # Preview production build
 - Star rating based on accuracy thresholds (60%, 80%, 95%)
 - Level unlock requirements based on previous level scores
 - Show educational explanations after each answer for learning reinforcement
-**Files:** GeographyExplorer.tsx, geoStore.ts, ScienceExplorer.tsx, scienceStore.ts, HistoryHeroes.tsx, historyStore.ts, levels.ts
+**Files:** GeographyExplorer.tsx, geoStore.ts, ScienceExplorer.tsx, scienceStore.ts, HistoryHeroes.tsx, historyStore.ts, AnimalKingdom.tsx, animalStore.ts, levels.ts
 **Tags:** #games #quiz #pattern #zustand
-**Frequency:** 3
+**Frequency:** 4

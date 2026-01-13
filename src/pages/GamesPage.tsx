@@ -147,6 +147,18 @@ const games: Game[] = [
     difficulty: 'medium',
     isNew: true,
   },
+  {
+    id: 'animal-kingdom',
+    name: 'Animal Kingdom',
+    description: 'Discover amazing animals, their habitats, classifications, and fascinating wildlife facts!',
+    icon: '🦁',
+    color: 'green',
+    category: 'academic',
+    ageRange: '5-12',
+    difficulty: 'medium',
+    isNew: true,
+    isHot: true,
+  },
 ];
 
 // Mock progress
@@ -305,10 +317,10 @@ export function GamesPage() {
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { name: 'Animal Kingdom', icon: '🦁', desc: 'Learn about wildlife and habitats' },
               { name: 'Art Studio', icon: '🎨', desc: 'Express your creativity' },
               { name: 'Music Maker', icon: '🎵', desc: 'Create melodies and learn music' },
               { name: 'Language Lab', icon: '🗣️', desc: 'Learn new languages with fun' },
+              { name: 'Puzzle World', icon: '🧩', desc: 'Solve challenging puzzles' },
             ].map((game, i) => (
               <motion.div
                 key={game.name}
