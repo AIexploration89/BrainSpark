@@ -4,6 +4,22 @@
 
 BrainSpark is an educational gaming platform for kids featuring interactive learning games with a cyberpunk/neon aesthetic. Built with React 19, TypeScript, TailwindCSS v4, and Framer Motion.
 
+## Auto-Invocation: /cc-improver
+
+**STRICT RULE:** After completing ANY task, invoke `/cc-improver` to capture learnings.
+
+**Always invoke after:**
+- Fixing errors or bugs
+- Implementing new features
+- Finding successful patterns
+- Encountering gotchas or edge cases
+- Any code changes
+
+**Only skip for:**
+- "commit" / "push" / "commit and push" requests
+- Pure git operations (status, log, diff)
+- Reading files without making changes
+
 ## Tech Stack
 
 - **Framework:** React 19 + TypeScript + Vite 7
