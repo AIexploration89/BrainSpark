@@ -7,6 +7,7 @@ import { PhysicsLab } from '../games/physics-lab';
 import { MathBasics } from '../games/math-basics';
 import { TypingMaster } from '../games/typing-master';
 import { WordBuilder } from '../games/word-builder';
+import { SpaceExploration } from '../games/space-exploration';
 
 // Game info mapping
 const gameInfo: Record<string, { name: string; icon: string; color: string; description: string }> = {
@@ -57,6 +58,12 @@ const gameInfo: Record<string, { name: string; icon: string; color: string; desc
     icon: '🎵',
     color: 'yellow',
     description: 'Train timing and coordination',
+  },
+  'space-exploration': {
+    name: 'Space Explorer',
+    icon: '🚀',
+    color: 'purple',
+    description: 'Journey through our solar system and learn about space',
   },
 };
 
@@ -109,6 +116,10 @@ export function GamePlayPage() {
 
   if (gameId === 'word-builder') {
     return <WordBuilder />;
+  }
+
+  if (gameId === 'space-exploration') {
+    return <SpaceExploration />;
   }
 
   const colorClass = colorClasses[game.color];

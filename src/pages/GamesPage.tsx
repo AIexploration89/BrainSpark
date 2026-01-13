@@ -102,6 +102,17 @@ const games: Game[] = [
     difficulty: 'medium',
     isHot: true,
   },
+  {
+    id: 'space-exploration',
+    name: 'Space Explorer',
+    description: 'Journey through our solar system, discover planet facts, and test your space knowledge!',
+    icon: '🚀',
+    color: 'purple',
+    category: 'academic',
+    ageRange: '5-12',
+    difficulty: 'medium',
+    isNew: true,
+  },
 ];
 
 // Mock progress
@@ -260,7 +271,7 @@ export function GamesPage() {
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { name: 'Space Exploration', icon: '🚀', desc: 'Explore the cosmos and constellations' },
+              { name: 'Animal Kingdom', icon: '🦁', desc: 'Learn about wildlife and habitats' },
               { name: 'Science Explorer', icon: '🔭', desc: 'Discover the wonders of science' },
               { name: 'Geography Quest', icon: '🌍', desc: 'Travel the world and learn' },
               { name: 'Art Studio', icon: '🎨', desc: 'Express your creativity' },
