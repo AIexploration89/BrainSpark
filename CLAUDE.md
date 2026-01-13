@@ -202,7 +202,7 @@ npm run preview  # Preview production build
 **Frequency:** 3
 
 ### [2026-01-13] Game Module - Update GamesPage When Adding New Games
-**Context:** Added Space Exploration, Geography Explorer, Science Explorer games
+**Context:** Added Space Exploration, Geography Explorer, Science Explorer, History Heroes games
 **Problem:** Need to update multiple files when adding a new game, easy to miss one
 **Solution:** Checklist for adding new games:
 1. Create game folder with all components
@@ -211,10 +211,10 @@ npm run preview  # Preview production build
 4. Remove from "Coming Soon" section if it was listed there
 5. Run `npx tsc -b` to verify build
 **Tags:** #games #checklist
-**Frequency:** 3
+**Frequency:** 4
 
 ### [2026-01-13] Game Pattern - Quiz Game with Categories/Modes
-**Context:** Implemented Geography Explorer (4 game modes) and Science Explorer (4 science categories: biology, chemistry, physics, earth-science)
+**Context:** Implemented Geography Explorer (4 game modes), Science Explorer (4 science categories), and History Heroes (4 historical eras: ancient, medieval, renaissance, modern)
 **Problem:** Need flexible quiz structure supporting different question types, difficulties, and progression
 **Solution:** Quiz game architecture pattern:
 - Use state machine: menu → category-select → level-select → countdown → playing → paused → results
@@ -224,6 +224,6 @@ npm run preview  # Preview production build
 - Star rating based on accuracy thresholds (60%, 80%, 95%)
 - Level unlock requirements based on previous level scores
 - Show educational explanations after each answer for learning reinforcement
-**Files:** GeographyExplorer.tsx, geoStore.ts, ScienceExplorer.tsx, scienceStore.ts, levels.ts
+**Files:** GeographyExplorer.tsx, geoStore.ts, ScienceExplorer.tsx, scienceStore.ts, HistoryHeroes.tsx, historyStore.ts, levels.ts
 **Tags:** #games #quiz #pattern #zustand
-**Frequency:** 2
+**Frequency:** 3

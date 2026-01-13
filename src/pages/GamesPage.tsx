@@ -136,6 +136,17 @@ const games: Game[] = [
     isNew: true,
     isHot: true,
   },
+  {
+    id: 'history-heroes',
+    name: 'History Heroes',
+    description: 'Travel through time and discover the heroes who shaped our world!',
+    icon: '🏛️',
+    color: 'yellow',
+    category: 'academic',
+    ageRange: '6-12',
+    difficulty: 'medium',
+    isNew: true,
+  },
 ];
 
 // Mock progress
@@ -296,8 +307,8 @@ export function GamesPage() {
             {[
               { name: 'Animal Kingdom', icon: '🦁', desc: 'Learn about wildlife and habitats' },
               { name: 'Art Studio', icon: '🎨', desc: 'Express your creativity' },
-              { name: 'History Heroes', icon: '🏛️', desc: 'Journey through time' },
               { name: 'Music Maker', icon: '🎵', desc: 'Create melodies and learn music' },
+              { name: 'Language Lab', icon: '🗣️', desc: 'Learn new languages with fun' },
             ].map((game, i) => (
               <motion.div
                 key={game.name}

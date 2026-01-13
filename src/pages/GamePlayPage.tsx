@@ -10,6 +10,7 @@ import { WordBuilder } from '../games/word-builder';
 import { SpaceExploration } from '../games/space-exploration';
 import { GeographyExplorer } from '../games/geography-explorer';
 import { ScienceExplorer } from '../games/science-explorer';
+import { HistoryHeroes } from '../games/history-heroes';
 
 // Game info mapping
 const gameInfo: Record<string, { name: string; icon: string; color: string; description: string }> = {
@@ -79,6 +80,12 @@ const gameInfo: Record<string, { name: string; icon: string; color: string; desc
     color: 'green',
     description: 'Discover the wonders of Biology, Chemistry, Physics, and Earth Science',
   },
+  'history-heroes': {
+    name: 'History Heroes',
+    icon: '🏛️',
+    color: 'yellow',
+    description: 'Travel through time and discover the heroes who shaped our world',
+  },
 };
 
 const colorClasses: Record<string, string> = {
@@ -142,6 +149,10 @@ export function GamePlayPage() {
 
   if (gameId === 'science-explorer') {
     return <ScienceExplorer />;
+  }
+
+  if (gameId === 'history-heroes') {
+    return <HistoryHeroes />;
   }
 
   const colorClass = colorClasses[game.color];
