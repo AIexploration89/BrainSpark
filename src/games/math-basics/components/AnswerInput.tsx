@@ -58,7 +58,7 @@ function NumpadButton({
           background: 'radial-gradient(circle at center, rgba(0,255,136,0.2), transparent 70%)',
         }}
       />
-      <span className="relative z-10">{value}</span>
+      <span className="relative z-10" aria-hidden="true">{value}</span>
     </motion.button>
   );
 }

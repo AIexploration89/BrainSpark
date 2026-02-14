@@ -30,6 +30,9 @@ export function CountdownOverlay({ onComplete, count = 3 }: CountdownOverlayProp
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-bg-primary/95 backdrop-blur-sm"
+      role="status"
+      aria-live="assertive"
+      aria-label={currentCount > 0 ? `Starting in ${currentCount}` : 'Go!'}
     >
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden">

@@ -107,6 +107,8 @@ export function LeaderboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="flex justify-center gap-2 mb-8"
+          role="tablist"
+          aria-label="Leaderboard type"
         >
           {[
             { id: 'global' as const, label: 'Global', icon: '🌍' },
@@ -116,6 +118,8 @@ export function LeaderboardPage() {
             <button
               key={tab.id}
               onClick={() => setLeaderboardType(tab.id)}
+              role="tab"
+              aria-selected={leaderboardType === tab.id}
               className={`
                 flex items-center gap-2 px-5 py-3 rounded-xl font-display uppercase tracking-wider
                 transition-all duration-300

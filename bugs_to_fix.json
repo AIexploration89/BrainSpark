@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "severity": "high",
+    "category": "config",
+    "file": ".gitignore",
+    "line": 1,
+    "description": ".env files are not listed in .gitignore. If environment variables or secrets are ever added to a .env file, they could be accidentally committed to version control.",
+    "recommendation": "Add .env* pattern to .gitignore to prevent accidental commits of environment files.",
+    "fixed": true
+  },
+  {
+    "id": 2,
+    "severity": "high",
+    "category": "auth",
+    "file": "src/App.tsx",
+    "line": 21,
+    "description": "Routes marked as 'protected' (dashboard, games, shop, leaderboard) have no authentication guard. Any user can directly navigate to /dashboard, /shop, /leaderboard without logging in. The comment on line 20 acknowledges this.",
+    "recommendation": "Implement a ProtectedRoute wrapper component that checks authentication state and redirects unauthenticated users to /login. Use a Zustand auth store to track login status.",
+    "fixed": false
+  },
+  {
+    "id": 3,
+    "severity": "high",
+    "category": "auth",
+    "file": "src/pages/LoginPage.tsx",
+    "line": 12,
+    "description": "Login form has no actual authentication - it accepts any email/password combination and navigates to /dashboard after a 1-second timeout. Social login buttons also bypass authentication entirely (line 26).",
+    "recommendation": "Implement proper authentication with a backend auth service. Until then, at minimum validate against stored credentials and set an auth token. Add rate limiting for login attempts.",
+    "fixed": false
+  },
+  {
+    "id": 4,
+    "severity": "medium",
+    "category": "input-validation",
+    "file": "src/pages/SignupPage.tsx",
+    "line": 204,
+    "description": "Child nickname input (childName) has no length limit, character restrictions, or sanitization. While React safely escapes text in JSX, excessively long names or special characters could cause UI issues.",
+    "recommendation": "Add maxLength attribute to the input (e.g., 20 characters) and validate against a pattern of allowed characters (alphanumeric + basic punctuation).",
+    "fixed": true
+  },
+  {
+    "id": 5,
+    "severity": "medium",
+    "category": "state-manipulation",
+    "file": "src/games/math-basics/stores/mathStore.ts",
+    "line": 430,
+    "description": "Game progress (scores, stars, level unlocks) is persisted to localStorage via Zustand persist middleware with key 'math-basics-progress'. Users can modify localStorage directly via browser devtools to unlock all levels, set arbitrary high scores, and grant themselves maximum stars. This applies to all 12 game progress stores.",
+    "recommendation": "For a kids' educational app, this is acceptable risk since there's no competitive multiplayer with real stakes. If leaderboards become real, implement server-side score validation. Consider adding a simple checksum/hash to detect tampering for local integrity.",
+    "fixed": false
+  },
+  {
+    "id": 6,
+    "severity": "medium",
+    "category": "localStorage",
+    "file": "src/games/typing-master/stores/typingStore.ts",
+    "line": 404,
+    "description": "Zustand persist stores do not validate data shape/types when loading from localStorage. If localStorage data is corrupted or tampered with (wrong types, missing fields, injected properties), it could cause runtime errors or unexpected behavior.",
+    "recommendation": "Add a 'merge' function to the persist configuration that validates the stored data shape against expected types. Use a version number to handle schema migrations.",
+    "fixed": false
+  },
+  {
+    "id": 7,
+    "severity": "medium",
+    "category": "config",
+    "file": "vite.config.ts",
+    "line": 6,
+    "description": "Vite configuration does not explicitly disable source maps for production builds. Vite defaults to not generating source maps in production, but this should be explicitly configured to prevent accidental exposure of source code if defaults change.",
+    "recommendation": "Add explicit build configuration: build: { sourcemap: false } to vite.config.ts for production builds.",
+    "fixed": true
+  },
+  {
+    "id": 8,
+    "severity": "medium",
+    "category": "config",
+    "file": "index.html",
+    "line": 2,
+    "description": "No Content Security Policy (CSP) meta tag is configured. While this is a client-side app with no inline scripts from user input, a CSP header would add defense-in-depth against XSS and data injection attacks.",
+    "recommendation": "Add a CSP meta tag to index.html or configure CSP headers at the hosting level. At minimum: default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:;",
+    "fixed": true
+  },
+  {
+    "id": 9,
+    "severity": "low",
+    "category": "secrets",
+    "file": "src/pages/LoginPage.tsx",
+    "line": 24,
+    "description": "console.log statements in LoginPage.tsx (line 24) and SignupPage.tsx (line 37) log social auth provider names. ShopPage.tsx (line 82) logs purchase details. While not security-critical currently, console.log statements should be removed from production builds to prevent information leakage.",
+    "recommendation": "Remove console.log statements from production code or configure a build step to strip them (e.g., terser drop_console option in Vite build config).",
+    "fixed": true
+  },
+  {
+    "id": 10,
+    "severity": "low",
+    "category": "input-validation",
+    "file": "src/pages/SignupPage.tsx",
+    "line": 142,
+    "description": "Password field has a minLength=8 validation but no complexity requirements (uppercase, lowercase, numbers, special characters). For a children's educational platform, weak passwords could expose family accounts.",
+    "recommendation": "Add client-side password strength validation requiring at least one uppercase letter, one lowercase letter, and one number. Display a password strength indicator.",
+    "fixed": false
+  },
+  {
+    "id": 11,
+    "severity": "low",
+    "category": "xss",
+    "file": "src/pages/GamePlayPage.tsx",
+    "line": 186,
+    "description": "Dynamic CSS class construction using template literals with game.color (e.g., bg-neon-${game.color}/10) uses data from a hardcoded lookup object, not user input. This is safe but could become an issue if game data ever comes from user input or an API.",
+    "recommendation": "Use a predefined mapping object for color classes instead of string interpolation, similar to the colorClasses pattern already used on line 105-112. This is a defensive coding practice.",
+    "fixed": false
+  },
+  {
+    "id": 12,
+    "severity": "low",
+    "category": "auth",
+    "file": "src/pages/ShopPage.tsx",
+    "line": 80,
+    "description": "Shop purchase logic only logs to console without any actual validation or state update. The 'sparks' currency balance is hardcoded in a mock object and never actually deducted. When real purchases are implemented, client-side balance checks alone would be insufficient.",
+    "recommendation": "When implementing real purchases, validate all transactions server-side. Never trust client-side currency/balance checks alone.",
+    "fixed": false
+  }
+]

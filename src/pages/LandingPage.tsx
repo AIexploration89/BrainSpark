@@ -151,6 +151,9 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-neon-cyan focus:text-bg-primary focus:rounded-lg focus:font-display focus:font-bold">
+        Skip to content
+      </a>
       {/* Animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Gradient orbs */}
@@ -173,6 +176,7 @@ export function LandingPage() {
 
       <Navbar />
 
+      <main id="main-content">
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
         <motion.div
@@ -396,6 +400,8 @@ export function LandingPage() {
         </div>
       </section>
 
+      </main>
+
       {/* Footer */}
       <footer className="relative border-t border-white/5 py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -448,7 +454,7 @@ export function LandingPage() {
 
           <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-text-muted text-sm">
-              &copy; 2024 BrainSpark. All rights reserved.
+              &copy; {new Date().getFullYear()} BrainSpark. All rights reserved.
             </p>
             <div className="flex gap-6 text-text-muted text-sm">
               <a href="#" className="hover:text-white transition-colors">Privacy</a>

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
@@ -54,7 +54,7 @@ export function Navbar({ isLoggedIn = false, userProfile }: NavbarProps) {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-8" role="navigation" aria-label="Main navigation">
             {!isLoggedIn ? (
               <>
                 <NavLink href="#features">Features</NavLink>
@@ -100,8 +100,10 @@ export function Navbar({ isLoggedIn = false, userProfile }: NavbarProps) {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 text-text-secondary hover:text-white transition-colors"
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
             >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 {mobileMenuOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -113,13 +115,18 @@ export function Navbar({ isLoggedIn = false, userProfile }: NavbarProps) {
         </div>
 
         {/* Mobile menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
         <motion.div
-          initial={false}
+          initial={{ height: 0, opacity: 0 }}
           animate={{
-            height: mobileMenuOpen ? 'auto' : 0,
-            opacity: mobileMenuOpen ? 1 : 0
+            height: 'auto',
+            opacity: 1
           }}
+          exit={{ height: 0, opacity: 0 }}
           className="md:hidden overflow-hidden"
+          role="navigation"
+          aria-label="Mobile navigation"
         >
           <div className="py-4 space-y-2">
             {!isLoggedIn ? (
@@ -152,6 +159,8 @@ export function Navbar({ isLoggedIn = false, userProfile }: NavbarProps) {
             )}
           </div>
         </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.nav>
   );

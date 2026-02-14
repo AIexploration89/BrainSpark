@@ -35,15 +35,22 @@ src/
 ├── components/
 │   ├── layout/          # Navbar, layout components
 │   └── ui/              # Reusable UI components (Button, Card, GameCard)
-├── games/               # Individual game modules
+├── games/               # Individual game modules (lazy-loaded via React.lazy)
+│   ├── animal-kingdom/  # Animal quiz game (4 categories)
 │   ├── code-quest/      # Visual block programming (30 levels)
+│   ├── geography-explorer/ # Geography quiz (4 modes, 24 levels)
+│   ├── history-heroes/  # History quiz (4 eras)
 │   ├── math-basics/     # Math operations game (24 levels)
 │   ├── memory-matrix/   # Pattern memory game (15 levels)
 │   ├── physics-lab/     # Physics experiments (5 interactive labs)
-│   └── typing-master/   # Typing practice (in progress)
+│   ├── puzzle-world/    # Puzzle games (4 modes: sliding, pattern, sequence, jigsaw)
+│   ├── science-explorer/# Science quiz (4 categories)
+│   ├── space-exploration/# Solar system exploration + space quiz
+│   ├── typing-master/   # Typing practice (multiple modes)
+│   └── word-builder/    # Vocabulary and spelling game
 ├── pages/               # Route pages
 │   ├── Dashboard.tsx
-│   ├── GamePlayPage.tsx # Game router
+│   ├── GamePlayPage.tsx # Game router (lazy-loads games)
 │   ├── GamesPage.tsx
 │   ├── LandingPage.tsx
 │   ├── LeaderboardPage.tsx
@@ -131,19 +138,50 @@ games/[game-name]/
 - Explorer rank progression system
 - Combo/streak multipliers and star rating
 
+### 7. Science Explorer
+- 4 science categories with quiz-based learning
+- Educational explanations after each answer
+- Progressive difficulty with star ratings
+
+### 8. History Heroes
+- 4 historical eras with quiz gameplay
+- Timeline-themed UI aesthetic
+- Combo/streak system with multipliers
+
+### 9. Animal Kingdom
+- 4 animal categories: mammals, birds, ocean life, reptiles & amphibians
+- Jungle-themed background aesthetic
+- Fun fact generation and learning reinforcement
+
+### 10. Puzzle World
+- 4 puzzle modes: Sliding, Pattern Match, Sequence, Jigsaw Lite
+- Click-based interactions (touch-friendly, no drag-and-drop)
+- Holographic arcade aesthetic with CRT scanlines
+- Hint system with score penalty
+
+### 11. Typing Master
+- Multiple game modes including word rain
+- WPM and accuracy tracking
+- Keyboard visualizer component
+
+### 12. Word Builder
+- Vocabulary and spelling game
+- Letter tile placement mechanics
+- Hint system for assistance
+
 ## Adding New Games
 
 1. Create folder: `src/games/[game-name]/`
 2. Follow the module pattern above
-3. Add to `GamePlayPage.tsx`:
+3. Add lazy import to `GamePlayPage.tsx`:
    ```tsx
-   import { GameName } from '../games/game-name';
-
-   if (gameId === 'game-name') {
-     return <GameName />;
-   }
+   const GameName = lazy(() => import('../games/game-name').then(m => ({ default: m.GameName })));
    ```
-4. Add game info to `gameInfo` object in GamePlayPage.tsx
+4. Add entry to the `gameComponents` lookup map in GamePlayPage.tsx
+5. Add game info to `gameInfo` object in GamePlayPage.tsx
+6. Add to `GamesPage.tsx` games array
+7. Remove from "Coming Soon" section if listed there
+8. Run `npx tsc -b` to verify build
 
 ## State Management
 
@@ -186,6 +224,27 @@ npm run preview  # Preview production build
 
 - Mouse Expert
 - Rhythm & Reflex
+
+## Security
+
+- CSP meta tag configured in `index.html`
+- Source maps disabled in production (`vite.config.ts`)
+- `console.log` and `debugger` stripped from production builds
+- `.env*` files excluded via `.gitignore`
+- Input validation on signup form fields
+- No real backend auth yet - login accepts any credentials (see `bugs_to_fix.json` for full audit)
+- Game progress stored in localStorage is client-side only and tamperable via devtools
+- See `bugs_to_fix.json` for the full security audit with 12 findings
+
+## Accessibility
+
+- Skip-to-content link on LandingPage
+- Keyboard navigation on clickable Cards and GameCards (Enter/Space)
+- ARIA attributes across Navbar, Dashboard, GamesPage, ShopPage, LeaderboardPage
+- `role="dialog"` + `aria-modal` on modals with Escape key handling
+- `role="math"` with spoken equation labels on math displays
+- `role="status"` + `aria-live="assertive"` on countdown overlays
+- Progress bars with `role="progressbar"` and proper ARIA attributes
 
 ## Learnings & Best Practices
 
@@ -243,4 +302,44 @@ npm run preview  # Preview production build
 - Holographic arcade aesthetic: CRT scanlines, rainbow shimmer overlays, corner accents, animated grids
 **Files:** puzzle-world/PuzzleWorld.tsx, puzzleStore.ts, SlidingPuzzle.tsx, PatternMatch.tsx, SequencePuzzle.tsx, JigsawLite.tsx
 **Tags:** #games #puzzle #pattern #zustand #aesthetic
+**Frequency:** 1
+
+### [2026-02-14] Tailwind v4 - Dynamic Class Names Don't Work with JIT
+**Context:** Dashboard achievements and GamePlayPage background glows used template literals like `bg-neon-${color}/10`
+**Problem:** Tailwind JIT compiler only detects statically-written class names. Dynamic template literal classes (e.g., `from-neon-${color}/20`, `bg-neon-${game.color}/10`) are never generated and silently fail.
+**Solution:** Use pre-computed static class lookup maps instead of string interpolation:
+```tsx
+// BAD: `bg-neon-${color}/10` - JIT won't generate this
+// GOOD:
+const bgGlowClasses: Record<string, string> = {
+  cyan: 'bg-neon-cyan/10',
+  pink: 'bg-neon-pink/10',
+};
+```
+**Files affected:** Dashboard.tsx, GamePlayPage.tsx
+**Tags:** #tailwind #jit #styling
+**Frequency:** 2
+
+### [2026-02-14] Game Logic - Protect State During Execution Lifecycle
+**Context:** Code Quest startExecution() and stopExecution() called initializeLevel() which reset programBlocks to []
+**Problem:** Calling a full reset function (like initializeLevel) during execution lifecycle events can destroy ephemeral user state (program blocks, user input, etc.) that needs to survive across state transitions.
+**Solution:** When transitioning game states, save user-created data before resets and restore after, or use targeted state updates instead of full resets.
+**Files affected:** codeQuestStore.ts
+**Tags:** #games #state-machine #zustand
+**Frequency:** 1
+
+### [2026-02-14] Game Logic - Prevent Infinite Resource Accumulation on Replays
+**Context:** Space Exploration added starsEarned to totalStars unconditionally on every play
+**Problem:** Replay loops allow infinite accumulation of resources (stars, coins, XP) when progress updates don't check for previous best scores.
+**Solution:** Only award the delta: `Math.max(0, newStars - existingBestStars)`. Track per-level bests and compare.
+**Files affected:** spaceStore.ts
+**Tags:** #games #scoring #exploit
+**Frequency:** 1
+
+### [2026-02-14] Performance - Lazy Load Game Modules
+**Context:** All 12 game modules were eagerly imported in GamePlayPage.tsx
+**Problem:** Monolithic bundle loaded all game code upfront even when user only plays one game.
+**Solution:** Use `React.lazy()` with `Suspense` for each game import. Each game becomes its own ~65-97 KB chunk loaded on demand. Add a loading fallback component.
+**Files affected:** GamePlayPage.tsx
+**Tags:** #performance #code-splitting #react
 **Frequency:** 1

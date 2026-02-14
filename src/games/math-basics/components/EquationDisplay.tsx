@@ -282,8 +282,16 @@ export function EquationDisplay({
     ? 'neon-cyan'
     : 'neon-green';
 
+  const operationSymbols: Record<string, string> = {
+    addition: '+',
+    subtraction: '-',
+    multiplication: 'times',
+    division: 'divided by',
+  };
+  const srLabel = `${problem.num1} ${operationSymbols[problem.operation] || problem.operation} ${problem.num2} equals ${showResult ? problem.correctAnswer : userAnswer || 'blank'}`;
+
   return (
-    <div className="relative">
+    <div className="relative" role="math" aria-label={srLabel}>
       {/* Background glow effect */}
       <motion.div
         animate={{

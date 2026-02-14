@@ -209,6 +209,9 @@ export function SignupPage() {
                       className="w-full px-4 py-3 bg-bg-primary border border-white/10 rounded-xl text-white placeholder-text-muted focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan outline-none transition-colors"
                       placeholder="SparkMaster"
                       required
+                      maxLength={20}
+                      pattern="[A-Za-z0-9 _-]+"
+                      title="Letters, numbers, spaces, hyphens and underscores only"
                     />
                     <p className="mt-1 text-xs text-text-muted">This will be displayed in the app</p>
                   </div>

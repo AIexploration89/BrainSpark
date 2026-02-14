@@ -364,8 +364,10 @@ export const useSpaceProgressStore = create<SpaceProgressStore>()(
       updateProgress: (results, levelId) => {
         const { progress, levelProgress } = get();
 
-        // Update total stars
-        const newTotalStars = progress.totalStars + results.starsEarned;
+        // Only add the difference in stars (not the full amount on replays)
+        const existingStars = levelId ? (levelProgress[levelId]?.bestStars || 0) : 0;
+        const starDiff = Math.max(0, results.starsEarned - existingStars);
+        const newTotalStars = progress.totalStars + starDiff;
         const newRank = calculateRank(newTotalStars);
 
         // Check for new planet unlocks

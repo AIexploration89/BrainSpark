@@ -1,18 +1,31 @@
 import { motion } from 'framer-motion';
+import { lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
-import { MemoryMatrix } from '../games/memory-matrix';
-import { CodeQuest } from '../games/code-quest';
-import { PhysicsLab } from '../games/physics-lab';
-import { MathBasics } from '../games/math-basics';
-import { TypingMaster } from '../games/typing-master';
-import { WordBuilder } from '../games/word-builder';
-import { SpaceExploration } from '../games/space-exploration';
-import { GeographyExplorer } from '../games/geography-explorer';
-import { ScienceExplorer } from '../games/science-explorer';
-import { HistoryHeroes } from '../games/history-heroes';
-import { AnimalKingdom } from '../games/animal-kingdom';
-import { PuzzleWorld } from '../games/puzzle-world';
+
+const MemoryMatrix = lazy(() => import('../games/memory-matrix').then(m => ({ default: m.MemoryMatrix })));
+const CodeQuest = lazy(() => import('../games/code-quest').then(m => ({ default: m.CodeQuest })));
+const PhysicsLab = lazy(() => import('../games/physics-lab').then(m => ({ default: m.PhysicsLab })));
+const MathBasics = lazy(() => import('../games/math-basics').then(m => ({ default: m.MathBasics })));
+const TypingMaster = lazy(() => import('../games/typing-master').then(m => ({ default: m.TypingMaster })));
+const WordBuilder = lazy(() => import('../games/word-builder').then(m => ({ default: m.WordBuilder })));
+const SpaceExploration = lazy(() => import('../games/space-exploration').then(m => ({ default: m.SpaceExploration })));
+const GeographyExplorer = lazy(() => import('../games/geography-explorer').then(m => ({ default: m.GeographyExplorer })));
+const ScienceExplorer = lazy(() => import('../games/science-explorer').then(m => ({ default: m.ScienceExplorer })));
+const HistoryHeroes = lazy(() => import('../games/history-heroes').then(m => ({ default: m.HistoryHeroes })));
+const AnimalKingdom = lazy(() => import('../games/animal-kingdom').then(m => ({ default: m.AnimalKingdom })));
+const PuzzleWorld = lazy(() => import('../games/puzzle-world').then(m => ({ default: m.PuzzleWorld })));
+
+function GameLoadingFallback() {
+  return (
+    <div className="min-h-screen bg-bg-primary flex items-center justify-center">
+      <div className="text-center">
+        <div className="spinner mx-auto mb-4" />
+        <p className="text-text-secondary font-display">Loading game...</p>
+      </div>
+    </div>
+  );
+}
 
 // Game info mapping
 const gameInfo: Record<string, { name: string; icon: string; color: string; description: string }> = {
@@ -102,6 +115,15 @@ const gameInfo: Record<string, { name: string; icon: string; color: string; desc
   },
 };
 
+const bgGlowClasses: Record<string, string> = {
+  cyan: 'bg-neon-cyan/10',
+  pink: 'bg-neon-pink/10',
+  purple: 'bg-neon-purple/10',
+  green: 'bg-neon-green/10',
+  orange: 'bg-neon-orange/10',
+  yellow: 'bg-neon-yellow/10',
+};
+
 const colorClasses: Record<string, string> = {
   cyan: 'from-neon-cyan/20 to-neon-cyan/5 border-neon-cyan/30 text-neon-cyan',
   pink: 'from-neon-pink/20 to-neon-pink/5 border-neon-pink/30 text-neon-pink',
@@ -129,52 +151,23 @@ export function GamePlayPage() {
   }
 
   // Route to actual game components
-  if (gameId === 'memory-matrix') {
-    return <MemoryMatrix />;
-  }
+  const gameComponents: Record<string, React.ReactNode> = {
+    'memory-matrix': <MemoryMatrix />,
+    'code-quest': <CodeQuest />,
+    'physics-lab': <PhysicsLab />,
+    'math-basics': <MathBasics />,
+    'typing-master': <TypingMaster />,
+    'word-builder': <WordBuilder />,
+    'space-exploration': <SpaceExploration />,
+    'geography-explorer': <GeographyExplorer />,
+    'science-explorer': <ScienceExplorer />,
+    'history-heroes': <HistoryHeroes />,
+    'animal-kingdom': <AnimalKingdom />,
+    'puzzle-world': <PuzzleWorld />,
+  };
 
-  if (gameId === 'code-quest') {
-    return <CodeQuest />;
-  }
-
-  if (gameId === 'physics-lab') {
-    return <PhysicsLab />;
-  }
-
-  if (gameId === 'math-basics') {
-    return <MathBasics />;
-  }
-
-  if (gameId === 'typing-master') {
-    return <TypingMaster />;
-  }
-
-  if (gameId === 'word-builder') {
-    return <WordBuilder />;
-  }
-
-  if (gameId === 'space-exploration') {
-    return <SpaceExploration />;
-  }
-
-  if (gameId === 'geography-explorer') {
-    return <GeographyExplorer />;
-  }
-
-  if (gameId === 'science-explorer') {
-    return <ScienceExplorer />;
-  }
-
-  if (gameId === 'history-heroes') {
-    return <HistoryHeroes />;
-  }
-
-  if (gameId === 'animal-kingdom') {
-    return <AnimalKingdom />;
-  }
-
-  if (gameId === 'puzzle-world') {
-    return <PuzzleWorld />;
+  if (gameId && gameComponents[gameId]) {
+    return <Suspense fallback={<GameLoadingFallback />}>{gameComponents[gameId]}</Suspense>;
   }
 
   const colorClass = colorClasses[game.color];
@@ -182,9 +175,9 @@ export function GamePlayPage() {
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
       {/* Background effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className={`absolute top-1/4 left-1/4 w-96 h-96 bg-neon-${game.color}/10 rounded-full blur-3xl`} />
-        <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-${game.color}/10 rounded-full blur-3xl`} />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl ${bgGlowClasses[game.color] || 'bg-neon-cyan/10'}`} />
+        <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl ${bgGlowClasses[game.color] || 'bg-neon-cyan/10'}`} />
       </div>
 
       <motion.div

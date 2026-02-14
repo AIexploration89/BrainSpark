@@ -407,7 +407,7 @@ export const useMemoryProgressStore = create<MemoryProgressStore>()(
         const nextLevel = getLevelById(levelId + 1);
         let nextLevelProgress = levelProgress[levelId + 1];
 
-        if (nextLevel && result.accuracy >= (nextLevel.unlockRequirement || 0)) {
+        if (nextLevel && !nextLevelProgress && result.accuracy >= (nextLevel.unlockRequirement || 0)) {
           nextLevelProgress = {
             levelId: levelId + 1,
             highScore: 0,
@@ -416,6 +416,9 @@ export const useMemoryProgressStore = create<MemoryProgressStore>()(
             timesCompleted: 0,
             unlocked: true,
           };
+        } else if (nextLevel && nextLevelProgress && !nextLevelProgress.unlocked && result.accuracy >= (nextLevel.unlockRequirement || 0)) {
+          // Unlock existing progress without overwriting scores
+          nextLevelProgress = { ...nextLevelProgress, unlocked: true };
         }
 
         set({

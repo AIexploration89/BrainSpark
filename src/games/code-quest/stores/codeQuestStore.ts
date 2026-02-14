@@ -52,9 +52,11 @@ function isValidMove(pos: Position, tiles: Tile[], gridSize: { rows: number; col
   // Check tile type
   const nonWalkable = ['wall', 'spike', 'pit'];
   if (nonWalkable.includes(tile.type)) {
-    // Doors are walkable if active (open)
-    if (tile.type === 'door' && tile.isActive) return true;
     return false;
+  }
+  // Doors are walkable only if active (open)
+  if (tile.type === 'door') {
+    return tile.isActive === true;
   }
   return true;
 }
@@ -253,10 +255,15 @@ export const useCodeQuestStore = create<CodeQuestStore>((set, get) => ({
     const { currentLevel, programBlocks } = get();
     if (!currentLevel || programBlocks.length === 0) return;
 
-    // Reset to initial state
+    // Save program blocks before resetting level state
+    const savedBlocks = [...programBlocks];
+
+    // Reset to initial state (this clears programBlocks)
     get().initializeLevel();
 
+    // Restore program blocks and start execution
     set({
+      programBlocks: savedBlocks,
       isExecuting: true,
       gameState: 'executing',
       currentExecutionIndex: 0,
@@ -335,8 +342,12 @@ export const useCodeQuestStore = create<CodeQuestStore>((set, get) => ({
   },
 
   stopExecution: () => {
+    const { programBlocks } = get();
+    const savedBlocks = [...programBlocks];
     set({ isExecuting: false, gameState: 'building' });
     get().initializeLevel();
+    // Restore program blocks after resetting level state
+    set({ programBlocks: savedBlocks });
   },
 
   setExecutionSpeed: (speed) => {
@@ -381,11 +392,12 @@ export const useCodeQuestStore = create<CodeQuestStore>((set, get) => ({
 
     const timeSpent = startTime ? Date.now() - startTime : 0;
     const blocksUsed = programBlocks.length;
-    const optimalBlocks = currentLevel.maxBlocks;
+    // Optimal is ~60% of max allowed blocks (the minimum efficient solution)
+    const optimalBlocks = Math.ceil(currentLevel.maxBlocks * 0.6);
 
-    // Calculate stars
+    // Calculate stars based on block efficiency
     let stars = 1;
-    if (blocksUsed <= optimalBlocks * 1.5) stars = 2;
+    if (blocksUsed <= Math.ceil(optimalBlocks * 1.5)) stars = 2;
     if (blocksUsed <= optimalBlocks) stars = 3;
 
     // Calculate score

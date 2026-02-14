@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useState, useEffect, useCallback } from 'react';
 import { Navbar } from '../components/layout/Navbar';
 import { Button } from '../components/ui/Button';
 
@@ -83,6 +83,17 @@ export function ShopPage() {
     setPurchaseModal(null);
   };
 
+  const closeModal = useCallback(() => setPurchaseModal(null), []);
+
+  useEffect(() => {
+    if (!purchaseModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeModal();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [purchaseModal, closeModal]);
+
   return (
     <div className="min-h-screen bg-bg-primary">
       <Navbar isLoggedIn={true} userProfile={mockUserProfile} />
@@ -124,6 +135,7 @@ export function ShopPage() {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
+              aria-pressed={selectedCategory === cat.id}
               className={`
                 flex items-center gap-2 px-5 py-3 rounded-xl font-display uppercase tracking-wider whitespace-nowrap
                 transition-all duration-300
@@ -194,6 +206,7 @@ export function ShopPage() {
                 <button
                   onClick={() => handlePurchase(item)}
                   disabled={mockUserProfile.sparks < item.price}
+                  aria-label={`Buy ${item.name} for ${item.price} Sparks`}
                   className={`
                     w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-display uppercase tracking-wider
                     transition-all duration-300
@@ -212,43 +225,50 @@ export function ShopPage() {
         </div>
 
         {/* Purchase modal */}
-        {purchaseModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            onClick={() => setPurchaseModal(null)}
-          >
+        <AnimatePresence>
+          {purchaseModal && (
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-bg-secondary border border-white/10 rounded-2xl p-8 max-w-sm w-full"
-              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+              onClick={closeModal}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="purchase-modal-title"
             >
-              <div className="text-center">
-                <div className="text-6xl mb-4">{purchaseModal.icon}</div>
-                <h2 className="text-xl font-display font-bold text-white mb-2">
-                  Purchase {purchaseModal.name}?
-                </h2>
-                <p className="text-text-secondary mb-6">{purchaseModal.description}</p>
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-bg-secondary border border-white/10 rounded-2xl p-8 max-w-sm w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="text-center">
+                  <div className="text-6xl mb-4" aria-hidden="true">{purchaseModal.icon}</div>
+                  <h2 id="purchase-modal-title" className="text-xl font-display font-bold text-white mb-2">
+                    Purchase {purchaseModal.name}?
+                  </h2>
+                  <p className="text-text-secondary mb-6">{purchaseModal.description}</p>
 
-                <div className="flex items-center justify-center gap-2 text-2xl font-display font-bold text-neon-yellow mb-6">
-                  <span>⚡</span>
-                  <span>{purchaseModal.price}</span>
-                </div>
+                  <div className="flex items-center justify-center gap-2 text-2xl font-display font-bold text-neon-yellow mb-6">
+                    <span aria-hidden="true">⚡</span>
+                    <span>{purchaseModal.price} Sparks</span>
+                  </div>
 
-                <div className="flex gap-3">
-                  <Button variant="ghost" onClick={() => setPurchaseModal(null)} className="flex-1">
-                    Cancel
-                  </Button>
-                  <Button variant="primary" onClick={confirmPurchase} className="flex-1">
-                    Buy Now
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button variant="ghost" onClick={closeModal} className="flex-1">
+                      Cancel
+                    </Button>
+                    <Button variant="primary" onClick={confirmPurchase} className="flex-1">
+                      Buy Now
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );

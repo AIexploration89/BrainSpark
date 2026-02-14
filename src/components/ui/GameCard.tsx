@@ -73,6 +73,10 @@ export function GameCard({ game, progress = 0, onClick, delay = 0 }: GameCardPro
       }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
+      role="button"
+      tabIndex={0}
+      aria-label={`Play ${game.name}: ${game.description}`}
       className={`
         relative group cursor-pointer
         bg-gradient-to-br ${styles.bg}
@@ -137,7 +141,7 @@ export function GameCard({ game, progress = 0, onClick, delay = 0 }: GameCardPro
         {/* Meta info */}
         <div className="flex items-center gap-3 text-xs text-text-muted mb-4">
           <span className="flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             {game.ageRange}
@@ -154,7 +158,7 @@ export function GameCard({ game, progress = 0, onClick, delay = 0 }: GameCardPro
 
         {/* Progress bar */}
         <div className="relative">
-          <div className="h-2 bg-bg-primary/50 rounded-full overflow-hidden">
+          <div className="h-2 bg-bg-primary/50 rounded-full overflow-hidden" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label={`${game.name} progress: ${progress}%`}>
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
@@ -187,7 +191,7 @@ export function GameCard({ game, progress = 0, onClick, delay = 0 }: GameCardPro
             shadow-[0_0_30px_rgba(0,245,255,0.5)]
           `}
         >
-          <svg className="w-8 h-8 text-bg-primary ml-1" fill="currentColor" viewBox="0 0 24 24">
+          <svg className="w-8 h-8 text-bg-primary ml-1" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M8 5v14l11-7z" />
           </svg>
         </motion.div>

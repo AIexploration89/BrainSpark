@@ -252,16 +252,18 @@ export function GamesPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search games..."
+              aria-label="Search games"
               className="w-full pl-12 pr-4 py-3 bg-bg-secondary border border-white/10 rounded-xl text-white placeholder-text-muted focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan outline-none transition-colors"
             />
           </div>
 
           {/* Difficulty filter */}
-          <div className="flex gap-2">
+          <div className="flex gap-2" role="group" aria-label="Filter by difficulty">
             {(['all', 'easy', 'medium', 'hard'] as const).map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
+                aria-pressed={selectedCategory === cat}
                 className={`
                   px-4 py-3 rounded-xl text-sm font-display uppercase tracking-wider
                   transition-all duration-300
@@ -280,6 +282,7 @@ export function GamesPage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
+            aria-label="Sort games"
             className="px-4 py-3 bg-bg-secondary border border-white/10 rounded-xl text-white focus:border-neon-cyan outline-none"
           >
             <option value="name">Sort by Name</option>

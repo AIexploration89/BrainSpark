@@ -68,9 +68,10 @@ export function LevelSelector({ onSelectLevel, onBack }: LevelSelectorProps) {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={onBack}
+          aria-label="Back to games"
           className="w-12 h-12 flex items-center justify-center rounded-xl bg-bg-secondary border border-white/10 text-text-secondary hover:text-white hover:border-neon-pink/50 transition-all"
         >
-          ←
+          <span aria-hidden="true">←</span>
         </motion.button>
         <div>
           <h1 className="text-2xl sm:text-3xl font-display font-bold text-white">

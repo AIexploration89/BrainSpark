@@ -180,8 +180,11 @@ export const usePuzzleGameStore = create<PuzzleGameState>()((set, get) => ({
   },
 
   pauseGame: () => {
-    get().stopTimer();
-    set({ gameState: 'paused' });
+    const { gameState } = get();
+    if (gameState === 'playing') {
+      get().stopTimer();
+      set({ gameState: 'paused' });
+    }
   },
 
   resumeGame: () => {

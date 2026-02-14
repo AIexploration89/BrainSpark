@@ -30,6 +30,9 @@ export function Card({
       whileHover={hoverable ? { y: -4, scale: 1.01 } : undefined}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       onClick={onClick}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
       className={`
         relative overflow-hidden
         bg-bg-card/80 backdrop-blur-sm

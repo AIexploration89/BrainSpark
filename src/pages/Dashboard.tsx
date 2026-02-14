@@ -245,11 +245,12 @@ export function Dashboard() {
             </h2>
 
             {/* Filter tabs */}
-            <div className="flex gap-2">
+            <div className="flex gap-2" role="group" aria-label="Filter games by difficulty">
               {(['all', 'easy', 'medium', 'hard'] as const).map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
+                  aria-pressed={selectedCategory === cat}
                   className={`
                     px-4 py-2 rounded-full text-sm font-display uppercase tracking-wider
                     transition-all duration-300
@@ -289,13 +290,13 @@ export function Dashboard() {
           <h2 className="text-xl font-display font-bold text-white mb-4 flex items-center gap-2">
             <span className="text-2xl">🏆</span> Recent Achievements
           </h2>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-track-bg-secondary scrollbar-thumb-neon-cyan/30">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-track-bg-secondary scrollbar-thumb-neon-cyan/30" role="list" aria-label="Recent achievements">
             {[
-              { name: 'Speed Demon', icon: '⚡', desc: 'Type 40+ WPM', color: 'cyan' },
-              { name: 'Math Ninja', icon: '🥷', desc: 'Perfect score', color: 'green' },
-              { name: '7-Day Streak', icon: '🔥', desc: 'Week warrior', color: 'orange' },
-              { name: 'First Steps', icon: '👶', desc: 'Complete tutorial', color: 'purple' },
-              { name: 'Pattern Pro', icon: '🧩', desc: '10 patterns', color: 'pink' },
+              { name: 'Speed Demon', icon: '⚡', desc: 'Type 40+ WPM', classes: 'from-neon-cyan/20 border-neon-cyan/30 hover:border-neon-cyan' },
+              { name: 'Math Ninja', icon: '🥷', desc: 'Perfect score', classes: 'from-neon-green/20 border-neon-green/30 hover:border-neon-green' },
+              { name: '7-Day Streak', icon: '🔥', desc: 'Week warrior', classes: 'from-neon-orange/20 border-neon-orange/30 hover:border-neon-orange' },
+              { name: 'First Steps', icon: '👶', desc: 'Complete tutorial', classes: 'from-neon-purple/20 border-neon-purple/30 hover:border-neon-purple' },
+              { name: 'Pattern Pro', icon: '🧩', desc: '10 patterns', classes: 'from-neon-pink/20 border-neon-pink/30 hover:border-neon-pink' },
             ].map((achievement, i) => (
               <motion.div
                 key={achievement.name}
@@ -304,13 +305,14 @@ export function Dashboard() {
                 transition={{ delay: 0.7 + i * 0.1 }}
                 className={`
                   flex-shrink-0 w-36 p-4 rounded-2xl
-                  bg-gradient-to-br from-neon-${achievement.color}/20 to-transparent
-                  border border-neon-${achievement.color}/30
-                  hover:border-neon-${achievement.color} hover:shadow-[0_0_30px_rgba(0,245,255,0.3)]
+                  bg-gradient-to-br ${achievement.classes} to-transparent
+                  border
+                  hover:shadow-[0_0_30px_rgba(0,245,255,0.3)]
                   transition-all duration-300 cursor-pointer
                 `}
+                role="listitem"
               >
-                <div className="text-4xl mb-2">{achievement.icon}</div>
+                <div className="text-4xl mb-2" aria-hidden="true">{achievement.icon}</div>
                 <h3 className="font-display font-bold text-white text-sm">{achievement.name}</h3>
                 <p className="text-text-muted text-xs">{achievement.desc}</p>
               </motion.div>
