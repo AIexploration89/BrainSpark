@@ -447,6 +447,13 @@ export const useMemoryProgressStore = create<MemoryProgressStore>()(
         const progress = levelProgress[levelId];
         if (progress?.unlocked) return true;
 
+        // Flexible unlock: allow 2 levels ahead of highest completed
+        const playedLevels = Object.values(levelProgress).filter(p => p.timesPlayed > 0);
+        if (playedLevels.length > 0) {
+          const highestPlayed = Math.max(...playedLevels.map(p => p.levelId));
+          if (levelId <= highestPlayed + 2) return true;
+        }
+
         // Check if previous level has high enough score
         const prevProgress = levelProgress[levelId - 1];
         const level = getLevelById(levelId);

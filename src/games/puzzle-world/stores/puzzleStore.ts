@@ -13,6 +13,7 @@ import type {
   PatternShape,
   PatternColor,
 } from '../types';
+import { useDifficultyStore } from '../../../stores/difficultyStore';
 
 // ==================== Game Store (Ephemeral State) ====================
 
@@ -617,6 +618,14 @@ export const usePuzzleGameStore = create<PuzzleGameState>()((set, get) => ({
       accuracy,
     };
 
+    // Record performance for adaptive difficulty
+    useDifficultyStore.getState().recordPerformance({
+      gameId: 'puzzle-world',
+      levelId: currentLevel.id,
+      accuracy,
+      score,
+    });
+
     set({
       gameState: completed ? 'results' : 'failed',
       lastResults: results,
@@ -731,8 +740,19 @@ export const usePuzzleProgressStore = create<PuzzleProgressState>()(
 
       isLevelUnlocked: (mode, levelId) => {
         if (levelId === 1) return true;
+
+        // Already completed previous level check
         const prevProgress = get().getLevelProgress(mode, levelId - 1);
-        return prevProgress?.completed === true;
+        if (prevProgress?.completed === true) return true;
+
+        // Flexible unlock: allow 2 levels ahead of highest completed in this mode
+        const modeProgress = get().levelProgress.filter(p => p.mode === mode && p.attempts > 0);
+        if (modeProgress.length > 0) {
+          const highestPlayed = Math.max(...modeProgress.map(p => p.levelId));
+          if (levelId <= highestPlayed + 2) return true;
+        }
+
+        return false;
       },
 
       resetProgress: () => {

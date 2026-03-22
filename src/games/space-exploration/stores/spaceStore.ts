@@ -17,6 +17,7 @@ import type {
 import { SCORING, STAR_THRESHOLDS, RANK_THRESHOLDS } from '../types';
 import { getPlanetById, PLANETS } from '../data/planets';
 import { getLevelById } from '../data/quizzes';
+import { useDifficultyStore } from '../../../stores/difficultyStore';
 
 // ============================================================================
 // GAME STORE - Current game session state
@@ -85,8 +86,16 @@ export const useSpaceGameStore = create<SpaceGameStore>((set, get) => ({
   }),
 
   selectLevel: (level) => {
+    // Apply adaptive difficulty modifiers
+    const difficultyStore = useDifficultyStore.getState();
+    const adjustedLevel = {
+      ...level,
+      timeLimit: level.timeLimit ? difficultyStore.applyTierToTimeLimit(level.timeLimit) : level.timeLimit,
+      questionsCount: level.questionsCount ? difficultyStore.applyTierToQuestionCount(level.questionsCount) : level.questionsCount,
+    };
+
     set({
-      currentLevel: level,
+      currentLevel: adjustedLevel,
       gameState: 'countdown',
       visitedPlanets: [],
       discoveredFacts: [],
@@ -234,6 +243,14 @@ export const useSpaceGameStore = create<SpaceGameStore>((set, get) => ({
       isPerfect: accuracy === 100,
       mode: 'quiz',
     };
+
+    // Record performance for adaptive difficulty
+    useDifficultyStore.getState().recordPerformance({
+      gameId: 'space-exploration',
+      levelId: currentLevel ? Number(currentLevel.id) || 0 : 0,
+      accuracy,
+      score,
+    });
 
     set({
       lastResults: results,
@@ -480,10 +497,23 @@ export const useSpaceProgressStore = create<SpaceProgressStore>()(
       },
 
       isLevelUnlocked: (levelId) => {
-        const { progress } = get();
+        const { progress, levelProgress } = get();
         const level = getLevelById(levelId);
         if (!level) return false;
-        return level.unlockRequirement <= progress.totalStars;
+
+        // Standard unlock check
+        if (level.unlockRequirement <= progress.totalStars) return true;
+
+        // Flexible unlock: allow 2 levels ahead of highest played
+        const playedLevels = Object.values(levelProgress).filter(p => p.timesPlayed > 0);
+        if (playedLevels.length > 0) {
+          const playedIds = playedLevels.map(p => Number(p.levelId) || 0);
+          const highestPlayed = Math.max(...playedIds);
+          const numericLevelId = Number(levelId) || 0;
+          if (numericLevelId > 0 && numericLevelId <= highestPlayed + 2) return true;
+        }
+
+        return false;
       },
 
       getLevelProgress: (levelId) => {

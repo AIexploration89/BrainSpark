@@ -14,6 +14,7 @@ import type {
 } from '../types';
 import { SCORING, DIFFICULTY_CONFIG } from '../types';
 import { generateQuestions, getLevelById } from '../data/levels';
+import { useDifficultyStore } from '../../../stores/difficultyStore';
 
 interface AnimalGameStore {
   // Game state
@@ -220,10 +221,18 @@ export const useAnimalGameStore = create<AnimalGameStore>((set, get) => ({
   }),
 
   selectLevel: (level) => {
-    const questions = generateQuestions(level);
+    // Apply adaptive difficulty modifiers
+    const difficultyStore = useDifficultyStore.getState();
+    const adjustedLevel = {
+      ...level,
+      timeLimit: difficultyStore.applyTierToTimeLimit(level.timeLimit),
+      questionCount: difficultyStore.applyTierToQuestionCount(level.questionCount),
+    };
+
+    const questions = generateQuestions(adjustedLevel);
 
     set({
-      currentLevel: level,
+      currentLevel: adjustedLevel,
       questions,
       currentQuestionIndex: 0,
       questionResults: [],
@@ -419,6 +428,14 @@ export const useAnimalGameStore = create<AnimalGameStore>((set, get) => ({
       totalHintsUsed
     );
 
+    // Record performance for adaptive difficulty
+    useDifficultyStore.getState().recordPerformance({
+      gameId: 'animal-kingdom',
+      levelId: currentLevel.id,
+      accuracy: results.accuracy,
+      score: results.score,
+    });
+
     set({
       gameState: 'results',
       lastResults: results,
@@ -576,6 +593,13 @@ export const useAnimalProgressStore = create<AnimalProgressStore>()(
 
         const progress = levelProgress[levelId];
         if (progress?.unlocked) return true;
+
+        // Flexible unlock: allow 2 levels ahead of highest completed
+        const playedLevels = Object.values(levelProgress).filter(p => p.timesPlayed > 0);
+        if (playedLevels.length > 0) {
+          const highestPlayed = Math.max(...playedLevels.map(p => p.levelId));
+          if (levelId <= highestPlayed + 2) return true;
+        }
 
         // Check unlock requirement
         const level = getLevelById(levelId);

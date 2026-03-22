@@ -13,6 +13,7 @@ import type {
 } from '../types';
 import { SCORING, DIFFICULTY_CONFIG } from '../types';
 import { generateWordChallenges, getLevelById } from '../data/levels';
+import { useDifficultyStore } from '../../../stores/difficultyStore';
 
 interface WordBuilderGameStore {
   // Game state
@@ -207,12 +208,20 @@ export const useWordBuilderGameStore = create<WordBuilderGameStore>((set, get) =
   }),
 
   selectLevel: (level) => {
-    const challenges = generateWordChallenges(level);
+    // Apply adaptive difficulty modifiers
+    const difficultyStore = useDifficultyStore.getState();
+    const adjustedLevel = {
+      ...level,
+      timeLimit: difficultyStore.applyTierToTimeLimit(level.timeLimit),
+      wordCount: difficultyStore.applyTierToQuestionCount(level.wordCount),
+    };
+
+    const challenges = generateWordChallenges(adjustedLevel);
     const firstChallenge = challenges[0];
     const wordLength = firstChallenge.word.word.length;
 
     set({
-      currentLevel: level,
+      currentLevel: adjustedLevel,
       challenges,
       currentChallengeIndex: 0,
       placedLetters: new Array(wordLength).fill(null),
@@ -544,6 +553,14 @@ export const useWordBuilderGameStore = create<WordBuilderGameStore>((set, get) =
       combo.maxReached
     );
 
+    // Record performance for adaptive difficulty
+    useDifficultyStore.getState().recordPerformance({
+      gameId: 'word-builder',
+      levelId: currentLevel.id,
+      accuracy: results.accuracy,
+      score: results.score,
+    });
+
     set({
       gameState: 'results',
       lastResults: results,
@@ -682,6 +699,13 @@ export const useWordBuilderProgressStore = create<WordBuilderProgressStore>()(
 
         const progress = levelProgress[levelId];
         if (progress?.unlocked) return true;
+
+        // Flexible unlock: allow 2 levels ahead of highest completed
+        const playedLevels = Object.values(levelProgress).filter(p => p.timesPlayed > 0);
+        if (playedLevels.length > 0) {
+          const highestPlayed = Math.max(...playedLevels.map(p => p.levelId));
+          if (levelId <= highestPlayed + 2) return true;
+        }
 
         const level = getLevelById(levelId);
         if (!level?.unlockRequirement) return false;
