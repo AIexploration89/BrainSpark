@@ -388,5 +388,5 @@ const bgGlowClasses: Record<string, string> = {
 - **Auth integration**: Replace per-page `mockUserProfile` with `useAuthStore`; wrap routes in `ProtectedRoute` (freq:1)
 - **Loop expansion DOS**: Guard recursive `expandProgram` with `MAX_EXPANDED_COMMANDS=500`; catch and show error (freq:1)
 - **Math.random in animate**: Pre-compute random values via `useMemo`; random in render causes infinite re-animation (freq:1)
-- **Difficulty integration**: Use `useDifficultyStore.getState()` in store's `selectLevel`; record perf in `finishRound` (freq:1)
-- **Flexible unlock**: Allow kids access 2 levels ahead of highest played; reduces frustration from strict gating (freq:1)
+- **Difficulty integration**: Use `useDifficultyStore.getState()` in `selectLevel`; field names vary: `questionCount`/`wordCount`/`questionsCount`/`problemCount` (freq:9)
+- **Flexible unlock**: Allow kids access 2 levels ahead of highest played; puzzle-world uses array progress not Record (freq:9)
