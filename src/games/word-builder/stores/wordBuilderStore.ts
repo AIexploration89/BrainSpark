@@ -35,6 +35,7 @@ interface WordBuilderGameStore {
   roundStartTime: number | null;
   wordStartTime: number | null;
   timeRemaining: number | null;
+  timerDeadline: number | null;
 
   // Combo
   combo: ComboState;
@@ -188,6 +189,7 @@ export const useWordBuilderGameStore = create<WordBuilderGameStore>((set, get) =
   roundStartTime: null,
   wordStartTime: null,
   timeRemaining: null,
+  timerDeadline: null,
   combo: {
     current: 0,
     multiplier: 1.0,
@@ -230,11 +232,13 @@ export const useWordBuilderGameStore = create<WordBuilderGameStore>((set, get) =
 
   startRound: () => {
     const { currentLevel } = get();
+    const timeLimit = currentLevel?.timeLimit || null;
     set({
       gameState: 'playing',
       roundStartTime: Date.now(),
       wordStartTime: Date.now(),
-      timeRemaining: currentLevel?.timeLimit || null,
+      timeRemaining: timeLimit,
+      timerDeadline: timeLimit ? Date.now() + timeLimit * 1000 : null,
     });
   },
 
@@ -495,30 +499,34 @@ export const useWordBuilderGameStore = create<WordBuilderGameStore>((set, get) =
 
     const nextChallenge = challenges[nextIndex];
     const wordLength = nextChallenge.word.word.length;
+    const timeLimit = currentLevel?.timeLimit || null;
 
     set({
       currentChallengeIndex: nextIndex,
       placedLetters: new Array(wordLength).fill(null),
       availableLetters: [...nextChallenge.scrambledLetters],
       wordStartTime: Date.now(),
-      timeRemaining: currentLevel?.timeLimit || null,
+      timeRemaining: timeLimit,
+      timerDeadline: timeLimit ? Date.now() + timeLimit * 1000 : null,
       attemptsOnCurrentWord: 0,
     });
   },
 
   pauseGame: () => {
-    const { gameState } = get();
+    const { gameState, timerDeadline } = get();
     if (gameState === 'playing') {
-      set({ gameState: 'paused' });
+      const timeRemaining = timerDeadline ? Math.max(0, Math.ceil((timerDeadline - Date.now()) / 1000)) : null;
+      set({ gameState: 'paused', timeRemaining, timerDeadline: null });
     }
   },
 
   resumeGame: () => {
-    const { gameState } = get();
+    const { gameState, timeRemaining } = get();
     if (gameState === 'paused') {
       set({
         gameState: 'playing',
         wordStartTime: Date.now(),
+        timerDeadline: timeRemaining !== null ? Date.now() + timeRemaining * 1000 : null,
       });
     }
   },
@@ -556,6 +564,7 @@ export const useWordBuilderGameStore = create<WordBuilderGameStore>((set, get) =
     roundStartTime: null,
     wordStartTime: null,
     timeRemaining: null,
+    timerDeadline: null,
     combo: {
       current: 0,
       multiplier: 1.0,
@@ -566,13 +575,16 @@ export const useWordBuilderGameStore = create<WordBuilderGameStore>((set, get) =
   }),
 
   tickTimer: () => {
-    const { timeRemaining, gameState } = get();
-    if (gameState !== 'playing' || timeRemaining === null) return;
+    const { timerDeadline, gameState } = get();
+    if (gameState !== 'playing' || timerDeadline === null) return;
+
+    const timeRemaining = Math.max(0, Math.ceil((timerDeadline - Date.now()) / 1000));
 
     if (timeRemaining <= 0) {
+      set({ timeRemaining: 0 });
       get().skipWord();
     } else {
-      set({ timeRemaining: timeRemaining - 1 });
+      set({ timeRemaining });
     }
   },
 
@@ -707,6 +719,7 @@ export const useWordBuilderProgressStore = create<WordBuilderProgressStore>()(
     }),
     {
       name: 'word-builder-progress',
+      version: 1,
     }
   )
 );

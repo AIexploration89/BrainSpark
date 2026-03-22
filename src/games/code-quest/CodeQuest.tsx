@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCodeQuestStore, useCodeQuestProgressStore } from './stores/codeQuestStore';
 import { getNextLevel } from './data/levels';
 import type { Level, CommandType } from './types';
+import { ChallengeBar } from '../../components/ui/ChallengeBar';
 
 // Components
 import { CodeGrid } from './components/CodeGrid';
@@ -358,6 +359,16 @@ function MainMenu({ onStart, onBack }: MainMenuProps) {
             &gt; _
           </motion.span>
         </motion.div>
+      </motion.div>
+
+      {/* Challenge Level Selector */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="w-full max-w-sm relative z-10 mb-4"
+      >
+        <ChallengeBar gameId="code-quest" />
       </motion.div>
 
       <motion.div

@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChallengeBar } from '../../components/ui/ChallengeBar';
 import { useGeoGameStore, useGeoProgressStore } from './stores/geoStore';
 import { getNextLevel } from './data/levels';
 import type { Level, GameMode, Continent } from './types';
@@ -329,6 +330,16 @@ function MainMenu({ onStart, onBack, explorerStats }: MainMenuProps) {
           <p className="text-text-muted text-xs uppercase tracking-wider">Countries</p>
           <p className="font-display font-bold text-neon-green">{explorerStats.countriesLearned.length}</p>
         </div>
+      </motion.div>
+
+      {/* Challenge Level Selector */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="w-full max-w-sm relative z-10 mb-4"
+      >
+        <ChallengeBar gameId="geography-explorer" />
       </motion.div>
 
       {/* Buttons */}

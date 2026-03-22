@@ -4,6 +4,97 @@ import { DIFFICULTY_CONFIG } from '../types';
 import { getLevelsByOperation } from '../data/levels';
 import { useMathProgressStore } from '../stores/mathStore';
 
+// Static Tailwind class maps to avoid dynamic template literals (JIT won't detect them)
+const textColorMap: Record<string, string> = {
+  'neon-green': 'text-neon-green',
+  'neon-cyan': 'text-neon-cyan',
+  'neon-orange': 'text-neon-orange',
+  'neon-pink': 'text-neon-pink',
+  'neon-purple': 'text-neon-purple',
+  'neon-red': 'text-neon-red',
+};
+
+const borderColorMap: Record<string, string> = {
+  'neon-green': 'border-neon-green/30',
+  'neon-cyan': 'border-neon-cyan/30',
+  'neon-orange': 'border-neon-orange/30',
+  'neon-pink': 'border-neon-pink/30',
+  'neon-purple': 'border-neon-purple/30',
+  'neon-red': 'border-neon-red/30',
+};
+
+const borderHoverColorMap: Record<string, string> = {
+  'neon-green': 'hover:border-neon-green/60',
+  'neon-cyan': 'hover:border-neon-cyan/60',
+  'neon-orange': 'hover:border-neon-orange/60',
+  'neon-pink': 'hover:border-neon-pink/60',
+  'neon-purple': 'hover:border-neon-purple/60',
+  'neon-red': 'hover:border-neon-red/60',
+};
+
+const bgOpacity20Map: Record<string, string> = {
+  'neon-green': 'bg-neon-green/20',
+  'neon-cyan': 'bg-neon-cyan/20',
+  'neon-orange': 'bg-neon-orange/20',
+  'neon-pink': 'bg-neon-pink/20',
+  'neon-purple': 'bg-neon-purple/20',
+  'neon-red': 'bg-neon-red/20',
+};
+
+const borderOpacity50Map: Record<string, string> = {
+  'neon-green': 'border-neon-green/50',
+  'neon-cyan': 'border-neon-cyan/50',
+  'neon-orange': 'border-neon-orange/50',
+  'neon-pink': 'border-neon-pink/50',
+  'neon-purple': 'border-neon-purple/50',
+  'neon-red': 'border-neon-red/50',
+};
+
+const borderFullColorMap: Record<string, string> = {
+  'neon-green': 'hover:border-neon-green',
+  'neon-cyan': 'hover:border-neon-cyan',
+  'neon-orange': 'hover:border-neon-orange',
+  'neon-pink': 'hover:border-neon-pink',
+  'neon-purple': 'hover:border-neon-purple',
+  'neon-red': 'hover:border-neon-red',
+};
+
+const gradientFromMap: Record<string, string> = {
+  'neon-green': 'from-neon-green/20',
+  'neon-cyan': 'from-neon-cyan/20',
+  'neon-orange': 'from-neon-orange/20',
+  'neon-pink': 'from-neon-pink/20',
+  'neon-purple': 'from-neon-purple/20',
+  'neon-red': 'from-neon-red/20',
+};
+
+const gradientToMap: Record<string, string> = {
+  'neon-green': 'to-neon-green/5',
+  'neon-cyan': 'to-neon-cyan/5',
+  'neon-orange': 'to-neon-orange/5',
+  'neon-pink': 'to-neon-pink/5',
+  'neon-purple': 'to-neon-purple/5',
+  'neon-red': 'to-neon-red/5',
+};
+
+const progressFromMap: Record<string, string> = {
+  'neon-green': 'from-neon-green/50',
+  'neon-cyan': 'from-neon-cyan/50',
+  'neon-orange': 'from-neon-orange/50',
+  'neon-pink': 'from-neon-pink/50',
+  'neon-purple': 'from-neon-purple/50',
+  'neon-red': 'from-neon-red/50',
+};
+
+const progressToMap: Record<string, string> = {
+  'neon-green': 'to-neon-green',
+  'neon-cyan': 'to-neon-cyan',
+  'neon-orange': 'to-neon-orange',
+  'neon-pink': 'to-neon-pink',
+  'neon-purple': 'to-neon-purple',
+  'neon-red': 'to-neon-red',
+};
+
 interface LevelSelectorProps {
   operation: Operation;
   onSelectLevel: (level: Level) => void;
@@ -42,7 +133,7 @@ export function LevelSelector({ operation, onSelectLevel, onBack }: LevelSelecto
         <div>
           <h2 className="text-2xl font-display font-bold text-white flex items-center gap-2">
             <span>{config.icon}</span>
-            <span className={`text-${config.color}`}>{config.name}</span>
+            <span className={textColorMap[config.color] || 'text-white'}>{config.name}</span>
           </h2>
           <p className="text-text-muted text-sm">Choose your level</p>
         </div>
@@ -70,7 +161,7 @@ export function LevelSelector({ operation, onSelectLevel, onBack }: LevelSelecto
                 className={`
                   relative p-4 rounded-xl border-2 text-left transition-all duration-200
                   ${isUnlocked
-                    ? `bg-bg-secondary/80 border-${config.color}/30 hover:border-${config.color}/60 cursor-pointer`
+                    ? `bg-bg-secondary/80 ${borderColorMap[config.color] || 'border-white/30'} ${borderHoverColorMap[config.color] || 'hover:border-white/60'} cursor-pointer`
                     : 'bg-bg-secondary/40 border-white/10 cursor-not-allowed opacity-60'
                   }
                 `}
@@ -97,7 +188,7 @@ export function LevelSelector({ operation, onSelectLevel, onBack }: LevelSelecto
                   absolute -top-2 -left-2 w-8 h-8 rounded-full flex items-center justify-center
                   font-display font-bold text-sm
                   ${isUnlocked
-                    ? `bg-${config.color}/20 text-${config.color} border border-${config.color}/50`
+                    ? `${bgOpacity20Map[config.color] || 'bg-white/20'} ${textColorMap[config.color] || 'text-white'} border ${borderOpacity50Map[config.color] || 'border-white/50'}`
                     : 'bg-bg-tertiary text-text-muted border border-white/10'
                   }
                 `}>
@@ -128,7 +219,7 @@ export function LevelSelector({ operation, onSelectLevel, onBack }: LevelSelecto
                 <div className="flex items-center justify-between text-xs">
                   <span className={`
                     px-2 py-0.5 rounded-full font-display uppercase
-                    bg-${diffConfig.color}/20 text-${diffConfig.color}
+                    ${bgOpacity20Map[diffConfig.color] || 'bg-white/20'} ${textColorMap[diffConfig.color] || 'text-white'}
                   `}>
                     {diffConfig.label}
                   </span>
@@ -144,7 +235,7 @@ export function LevelSelector({ operation, onSelectLevel, onBack }: LevelSelecto
                 {progress && progress.highScore > 0 && (
                   <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
                     <span className="text-xs text-text-muted">Best Score</span>
-                    <span className={`font-display font-bold text-${config.color}`}>
+                    <span className={`font-display font-bold ${textColorMap[config.color] || 'text-white'}`}>
                       {progress.highScore.toLocaleString()}
                     </span>
                   </div>
@@ -241,8 +332,8 @@ export function OperationSelector({ onSelectOperation, onBack }: OperationSelect
               onClick={() => onSelectOperation(op)}
               className={`
                 relative p-6 rounded-2xl border-2 text-left transition-all duration-300
-                bg-gradient-to-br from-${config.color}/20 to-${config.color}/5
-                border-${config.color}/30 hover:border-${config.color}
+                bg-gradient-to-br ${gradientFromMap[config.color] || 'from-white/20'} ${gradientToMap[config.color] || 'to-white/5'}
+                ${borderColorMap[config.color] || 'border-white/30'} ${borderFullColorMap[config.color] || 'hover:border-white'}
               `}
               style={{
                 boxShadow: `0 0 30px var(--color-${config.color})`,
@@ -261,7 +352,7 @@ export function OperationSelector({ onSelectOperation, onBack }: OperationSelect
               </motion.div>
 
               {/* Name */}
-              <h3 className={`text-xl font-display font-bold text-${config.color} mb-1`}>
+              <h3 className={`text-xl font-display font-bold ${textColorMap[config.color] || 'text-white'} mb-1`}>
                 {config.name}
               </h3>
 
@@ -272,7 +363,7 @@ export function OperationSelector({ onSelectOperation, onBack }: OperationSelect
                     initial={{ width: 0 }}
                     animate={{ width: `${(stars / maxStars) * 100}%` }}
                     transition={{ delay: 0.5 + i * 0.1, duration: 0.5 }}
-                    className={`h-full bg-gradient-to-r from-${config.color}/50 to-${config.color} rounded-full`}
+                    className={`h-full bg-gradient-to-r ${progressFromMap[config.color] || 'from-white/50'} ${progressToMap[config.color] || 'to-white'} rounded-full`}
                   />
                 </div>
                 <span className="text-sm text-text-muted">

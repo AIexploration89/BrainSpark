@@ -4,6 +4,23 @@ import { ANIMAL_CATEGORIES } from '../types';
 import { useAnimalProgressStore } from '../stores/animalStore';
 import { JungleBackground } from './JungleBackground';
 
+// Static Tailwind class maps to avoid dynamic template literals (JIT won't detect them)
+const textColorMap: Record<string, string> = {
+  'neon-green': 'text-neon-green',
+  'neon-cyan': 'text-neon-cyan',
+  'neon-orange': 'text-neon-orange',
+  'neon-pink': 'text-neon-pink',
+  'neon-purple': 'text-neon-purple',
+};
+
+const bgColorMap: Record<string, string> = {
+  'neon-green': 'bg-neon-green',
+  'neon-cyan': 'bg-neon-cyan',
+  'neon-orange': 'bg-neon-orange',
+  'neon-pink': 'bg-neon-pink',
+  'neon-purple': 'bg-neon-purple',
+};
+
 interface CategorySelectorProps {
   onSelectCategory: (category: AnimalCategory) => void;
   onBack: () => void;
@@ -106,7 +123,7 @@ export function CategorySelector({ onSelectCategory, onBack }: CategorySelectorP
                     {category.animalCount}+ animals to discover
                   </span>
                   <motion.span
-                    className={`text-${category.color} text-sm font-display font-bold`}
+                    className={`${textColorMap[category.color] || 'text-white'} text-sm font-display font-bold`}
                     animate={{ x: [0, 4, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
@@ -121,7 +138,7 @@ export function CategorySelector({ onSelectCategory, onBack }: CategorySelectorP
                   initial={{ width: 0 }}
                   animate={{ width: `${(stars / maxStars) * 100}%` }}
                   transition={{ delay: 0.3 + index * 0.1, duration: 0.5 }}
-                  className={`h-full bg-${category.color}`}
+                  className={`h-full ${bgColorMap[category.color] || 'bg-white'}`}
                   style={{
                     boxShadow: `0 0 10px ${category.glowColor}`,
                   }}

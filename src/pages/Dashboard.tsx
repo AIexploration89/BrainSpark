@@ -4,118 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/layout/Navbar';
 import { GameCard } from '../components/ui/GameCard';
 import { GlassCard } from '../components/ui/Card';
-import type { Game } from '../types';
+import { implementedGames } from '../data/games';
+import { useAuthStore } from '../stores/authStore';
 
-// Mock user profile for demo
-const mockUserProfile = {
-  nickname: 'SparkMaster',
-  avatar: '🚀',
-  level: 12,
-  xp: 2450,
-  xpToNextLevel: 3000,
-  sparks: 1250,
-  streak: 7,
-};
+// Use centralized game data - show all implemented games
+const games = implementedGames;
 
-// Games data
-const games: Game[] = [
-  {
-    id: 'typing-master',
-    name: 'Typing Master',
-    description: 'Master the keyboard from home row to full paragraphs. Track your WPM and accuracy!',
-    icon: '⌨️',
-    color: 'cyan',
-    category: 'skills',
-    ageRange: '5-12',
-    difficulty: 'easy',
-    isNew: true,
-  },
-  {
-    id: 'mouse-expert',
-    name: 'Mouse Expert',
-    description: 'Perfect your mouse control with precision clicking and smooth tracking.',
-    icon: '🖱️',
-    color: 'pink',
-    category: 'skills',
-    ageRange: '3-10',
-    difficulty: 'easy',
-  },
-  {
-    id: 'physics-lab',
-    name: 'Physics Lab',
-    description: 'Explore gravity, momentum, and energy through interactive experiments.',
-    icon: '🔬',
-    color: 'purple',
-    category: 'academic',
-    ageRange: '6-12',
-    difficulty: 'medium',
-    isHot: true,
-  },
-  {
-    id: 'math-basics',
-    name: 'Math Basics',
-    description: 'From counting to multiplication, build strong math foundations.',
-    icon: '➕',
-    color: 'green',
-    category: 'academic',
-    ageRange: '3-12',
-    difficulty: 'easy',
-  },
-  {
-    id: 'word-builder',
-    name: 'Word Builder',
-    description: 'Build vocabulary and spelling skills with engaging word puzzles.',
-    icon: '📝',
-    color: 'orange',
-    category: 'academic',
-    ageRange: '4-12',
-    difficulty: 'easy',
-    isNew: true,
-  },
-  {
-    id: 'code-quest',
-    name: 'Code Quest',
-    description: 'Learn programming logic through visual block coding adventures.',
-    icon: '💻',
-    color: 'cyan',
-    category: 'academic',
-    ageRange: '7-12',
-    difficulty: 'hard',
-  },
-  {
-    id: 'memory-matrix',
-    name: 'Memory Matrix',
-    description: 'Challenge your memory with patterns, sequences, and matching games.',
-    icon: '🧠',
-    color: 'pink',
-    category: 'cognitive',
-    ageRange: '3-12',
-    difficulty: 'medium',
-  },
-  {
-    id: 'rhythm-reflex',
-    name: 'Rhythm & Reflex',
-    description: 'Train timing and coordination with beat-matching challenges.',
-    icon: '🎵',
-    color: 'yellow',
-    category: 'cognitive',
-    ageRange: '5-12',
-    difficulty: 'medium',
-    isHot: true,
-  },
-];
-
-// Mock progress data
-const gameProgress: Record<string, number> = {
-  'typing-master': 45,
-  'mouse-expert': 72,
-  'physics-lab': 23,
-  'math-basics': 89,
-  'word-builder': 15,
-  'code-quest': 8,
-  'memory-matrix': 56,
-  'rhythm-reflex': 34,
-};
+// Default progress (0%) for all games - actual progress comes from individual game stores
+const gameProgress: Record<string, number> = Object.fromEntries(
+  implementedGames.map(g => [g.id, 0])
+);
 
 // Daily challenges
 const dailyChallenges = [
@@ -127,8 +25,19 @@ const dailyChallenges = [
 export function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
 
-  const xpPercent = (mockUserProfile.xp / mockUserProfile.xpToNextLevel) * 100;
+  const userProfile = {
+    nickname: user?.childName || 'Explorer',
+    avatar: user?.avatar || '🚀',
+    level: 1,
+    xp: 0,
+    xpToNextLevel: 1000,
+    sparks: 0,
+    streak: 0,
+  };
+
+  const xpPercent = (userProfile.xp / userProfile.xpToNextLevel) * 100;
 
   const filteredGames = selectedCategory === 'all'
     ? games
@@ -136,7 +45,7 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-bg-primary">
-      <Navbar isLoggedIn={true} userProfile={mockUserProfile} />
+      <Navbar isLoggedIn={true} userProfile={userProfile} />
 
       {/* Main content */}
       <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -147,10 +56,10 @@ export function Dashboard() {
           className="mb-8"
         >
           <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-2">
-            Welcome back, <span className="text-neon-cyan">{mockUserProfile.nickname}</span>!
+            Welcome back, <span className="text-neon-cyan">{userProfile.nickname}</span>!
           </h1>
           <p className="text-text-secondary">
-            You're on a <span className="text-neon-orange font-bold">{mockUserProfile.streak} day streak</span>. Keep it up!
+            You're on a <span className="text-neon-orange font-bold">{userProfile.streak} day streak</span>. Keep it up!
           </p>
         </motion.div>
 
@@ -159,28 +68,28 @@ export function Dashboard() {
           <StatCard
             icon="⚡"
             label="Sparks"
-            value={mockUserProfile.sparks.toLocaleString()}
+            value={userProfile.sparks.toLocaleString()}
             color="yellow"
             delay={0}
           />
           <StatCard
             icon="🎯"
             label="Level"
-            value={mockUserProfile.level.toString()}
+            value={userProfile.level.toString()}
             color="purple"
             delay={0.1}
           />
           <StatCard
             icon="🔥"
             label="Streak"
-            value={`${mockUserProfile.streak} days`}
+            value={`${userProfile.streak} days`}
             color="orange"
             delay={0.2}
           />
           <StatCard
             icon="⭐"
             label="XP"
-            value={`${mockUserProfile.xp}/${mockUserProfile.xpToNextLevel}`}
+            value={`${userProfile.xp}/${userProfile.xpToNextLevel}`}
             color="cyan"
             delay={0.3}
             showProgress

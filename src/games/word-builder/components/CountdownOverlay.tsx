@@ -1,6 +1,27 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Static Tailwind class maps to avoid dynamic template literals (JIT won't generate them)
+const textColorOpacity20Map: Record<string, string> = {
+  'neon-orange': 'text-neon-orange/20',
+  'neon-pink': 'text-neon-pink/20',
+  'neon-red': 'text-neon-red/20',
+  'neon-green': 'text-neon-green/20',
+  'neon-cyan': 'text-neon-cyan/20',
+  'neon-purple': 'text-neon-purple/20',
+  'neon-yellow': 'text-neon-yellow/20',
+};
+
+const fromColorOpacity30Map: Record<string, string> = {
+  'neon-orange': 'from-neon-orange/30',
+  'neon-pink': 'from-neon-pink/30',
+  'neon-red': 'from-neon-red/30',
+  'neon-green': 'from-neon-green/30',
+  'neon-cyan': 'from-neon-cyan/30',
+  'neon-purple': 'from-neon-purple/30',
+  'neon-yellow': 'from-neon-yellow/30',
+};
+
 interface CountdownOverlayProps {
   onComplete: () => void;
   count?: number;
@@ -37,6 +58,9 @@ export function CountdownOverlay({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      role="status"
+      aria-live="assertive"
+      aria-label={currentCount > 0 ? `Starting in ${currentCount}` : 'Go!'}
       className="fixed inset-0 z-50 flex items-center justify-center bg-bg-primary/95 backdrop-blur-sm"
     >
       {/* Background floating letters */}
@@ -59,7 +83,7 @@ export function CountdownOverlay({
               ease: 'linear',
               delay: i * 0.3,
             }}
-            className={`absolute text-4xl font-display font-bold text-${categoryColor}/20`}
+            className={`absolute text-4xl font-display font-bold ${textColorOpacity20Map[categoryColor] || 'text-white/20'}`}
           >
             {letter}
           </motion.div>
@@ -72,7 +96,7 @@ export function CountdownOverlay({
             opacity: [0.2, 0.4, 0.2],
           }}
           transition={{ duration: 2, repeat: Infinity }}
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-gradient-to-r from-${categoryColor}/30 to-neon-cyan/20 blur-3xl`}
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-gradient-to-r ${fromColorOpacity30Map[categoryColor] || 'from-white/30'} to-neon-cyan/20 blur-3xl`}
         />
       </div>
 

@@ -90,7 +90,7 @@ export function usePhysicsEngine(config: PhysicsEngineConfig): UsePhysicsEngineR
       if (obj.isStatic) return;
 
       // Apply gravity
-      obj.acceleration.y = gravity * ppm;
+      obj.acceleration.y += gravity * ppm;
 
       // Apply air resistance
       const speed = Math.sqrt(obj.velocity.x ** 2 + obj.velocity.y ** 2);

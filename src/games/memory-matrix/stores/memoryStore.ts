@@ -141,12 +141,18 @@ export const useMemoryGameStore = create<MemoryGameStore>((set, get) => ({
   setGameState: (state) => set({ gameState: state }),
 
   selectLevel: (level) => {
+    const cells = createGrid(level.gridSize);
     set({
       currentLevel: level,
       gameState: 'countdown',
+      cells,
+      pattern: [],
+      playerSelections: [],
+      currentPatternIndex: -1,
+      streak: 0,
+      startTime: null,
+      completionTime: null,
     });
-    // Initialize after state change
-    setTimeout(() => get().initializeGrid(), 0);
   },
 
   initializeGrid: () => {
@@ -264,12 +270,12 @@ export const useMemoryGameStore = create<MemoryGameStore>((set, get) => ({
     // 1. Player has found all pattern cells, or
     // 2. Player has made too many wrong guesses (more than 2), or
     // 3. Player has made enough selections (pattern length + 2 wrong allowed)
-    const maxWrongAllowed = 2;
+    const maxWrongBeforeFail = 3;
 
     if (correctSelections === pattern.length) {
       // Success!
       setTimeout(() => get().completeGame(), 300);
-    } else if (wrongSelections > maxWrongAllowed) {
+    } else if (wrongSelections >= maxWrongBeforeFail) {
       // Too many mistakes
       setTimeout(() => get().failGame(), 300);
     }
@@ -451,6 +457,7 @@ export const useMemoryProgressStore = create<MemoryProgressStore>()(
     }),
     {
       name: 'memory-matrix-progress',
+      version: 1,
     }
   )
 );

@@ -19,7 +19,12 @@ export function CountdownOverlay({ onComplete }: CountdownOverlayProps) {
   }, [count, onComplete]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-primary/90 backdrop-blur-sm">
+    <div
+      role="status"
+      aria-live="assertive"
+      aria-label={count > 0 ? `Starting in ${count}` : 'Go!'}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-bg-primary/90 backdrop-blur-sm"
+    >
       {/* Animated rings */}
       <div className="absolute inset-0 flex items-center justify-center">
         {[...Array(3)].map((_, i) => (

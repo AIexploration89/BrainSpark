@@ -64,6 +64,7 @@ interface TypingGameState {
   // Word Rain actions
   addWordRainWord: (word: WordRainWord) => void;
   updateWordRainWord: (id: string, updates: Partial<WordRainWord>) => void;
+  batchUpdateWordPositions: (updates: Map<string, { y: number }>) => void;
   removeWordRainWord: (id: string) => void;
   loseWordRainLife: () => void;
   addWordRainScore: (points: number) => void;
@@ -161,8 +162,13 @@ export const useTypingGameStore = create<TypingGameState>((set, get) => ({
     if (currentIndex >= characters.length) return;
 
     const expectedChar = characters[currentIndex].char;
-    const isCorrect = key.toLowerCase() === expectedChar.toLowerCase() ||
-                      (key === expectedChar); // For exact match including case
+    const currentLevelData = get().currentLevel;
+    // Levels with sentences/paragraphs content require case-sensitive matching
+    const caseSensitive = currentLevelData?.contentType === 'sentences' ||
+                          currentLevelData?.contentType === 'paragraphs';
+    const isCorrect = caseSensitive
+      ? key === expectedChar
+      : key.toLowerCase() === expectedChar.toLowerCase();
 
     // Record keystroke
     const keystroke: Keystroke = {
@@ -349,6 +355,13 @@ export const useTypingGameStore = create<TypingGameState>((set, get) => ({
     wordRainWords: state.wordRainWords.map(w => w.id === id ? { ...w, ...updates } : w),
   })),
 
+  batchUpdateWordPositions: (updates) => set((state) => ({
+    wordRainWords: state.wordRainWords.map(w => {
+      const update = updates.get(w.id);
+      return update ? { ...w, y: update.y } : w;
+    }),
+  })),
+
   removeWordRainWord: (id) => set((state) => ({
     wordRainWords: state.wordRainWords.filter(w => w.id !== id),
   })),
@@ -456,6 +469,7 @@ export const useTypingProgressStore = create<TypingProgressState>()(
     }),
     {
       name: 'typing-master-progress',
+      version: 1,
     }
   )
 );

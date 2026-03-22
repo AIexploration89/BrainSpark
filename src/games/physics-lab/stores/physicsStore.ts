@@ -379,6 +379,7 @@ export const usePhysicsProgressStore = create<PhysicsProgressStore>()(
     }),
     {
       name: 'physics-lab-progress',
+      version: 1,
     }
   )
 );

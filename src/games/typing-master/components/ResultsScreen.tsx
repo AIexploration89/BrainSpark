@@ -146,6 +146,14 @@ function AnimatedCounter({ value, duration = 1.5 }: { value: number; duration?: 
   return <>{displayValue}</>;
 }
 
+// Static class map to avoid Tailwind JIT issues with dynamic class names
+const bgOpacity5Classes: Record<string, string> = {
+  cyan: 'bg-neon-cyan/5',
+  green: 'bg-neon-green/5',
+  orange: 'bg-neon-orange/5',
+  purple: 'bg-neon-purple/5',
+};
+
 // Dramatic stat reveal card
 function DramaticStatCard({
   label,
@@ -161,10 +169,10 @@ function DramaticStatCard({
   delay: number;
 }) {
   const colorMap = {
-    cyan: { rgb: '0,245,255', text: 'text-neon-cyan', border: 'border-neon-cyan' },
-    green: { rgb: '0,255,136', text: 'text-neon-green', border: 'border-neon-green' },
-    orange: { rgb: '255,136,0', text: 'text-neon-orange', border: 'border-neon-orange' },
-    purple: { rgb: '139,92,246', text: 'text-neon-purple', border: 'border-neon-purple' },
+    cyan: { rgb: '0,245,255', text: 'text-neon-cyan', border: 'border-neon-cyan', border40: 'border-neon-cyan/40', border60: 'border-neon-cyan/60' },
+    green: { rgb: '0,255,136', text: 'text-neon-green', border: 'border-neon-green', border40: 'border-neon-green/40', border60: 'border-neon-green/60' },
+    orange: { rgb: '255,136,0', text: 'text-neon-orange', border: 'border-neon-orange', border40: 'border-neon-orange/40', border60: 'border-neon-orange/60' },
+    purple: { rgb: '139,92,246', text: 'text-neon-purple', border: 'border-neon-purple', border40: 'border-neon-purple/40', border60: 'border-neon-purple/60' },
   };
 
   const colors = colorMap[color];
@@ -186,11 +194,11 @@ function DramaticStatCard({
           ],
         }}
         transition={{ duration: 2, repeat: Infinity }}
-        className={`absolute inset-0 rounded-xl bg-${color}/5 opacity-50`}
+        className={`absolute inset-0 rounded-xl ${bgOpacity5Classes[color] || 'bg-white/5'} opacity-50`}
       />
 
       <div
-        className={`relative p-5 rounded-xl border ${colors.border}/40 bg-bg-secondary/80 backdrop-blur-sm overflow-hidden`}
+        className={`relative p-5 rounded-xl border ${colors.border40} bg-bg-secondary/80 backdrop-blur-sm overflow-hidden`}
       >
         {/* Scanlines */}
         <div
@@ -238,10 +246,10 @@ function DramaticStatCard({
         </div>
 
         {/* Corner accents */}
-        <div className={`absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 ${colors.border}/60`} />
-        <div className={`absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 ${colors.border}/60`} />
-        <div className={`absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 ${colors.border}/60`} />
-        <div className={`absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 ${colors.border}/60`} />
+        <div className={`absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 ${colors.border60}`} />
+        <div className={`absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 ${colors.border60}`} />
+        <div className={`absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 ${colors.border60}`} />
+        <div className={`absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 ${colors.border60}`} />
       </div>
     </motion.div>
   );

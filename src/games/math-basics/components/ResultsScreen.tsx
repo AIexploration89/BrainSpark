@@ -305,6 +305,27 @@ export function ResultsScreen({
   );
 }
 
+// Static class maps for Tailwind JIT compatibility
+const statBorderClasses: Record<string, string> = {
+  'neon-green': 'border-neon-green/20',
+  'neon-cyan': 'border-neon-cyan/20',
+  'neon-orange': 'border-neon-orange/20',
+  'neon-red': 'border-neon-red/20',
+  'neon-purple': 'border-neon-purple/20',
+  'neon-yellow': 'border-neon-yellow/20',
+  'neon-pink': 'border-neon-pink/20',
+};
+
+const statTextClasses: Record<string, string> = {
+  'neon-green': 'text-neon-green',
+  'neon-cyan': 'text-neon-cyan',
+  'neon-orange': 'text-neon-orange',
+  'neon-red': 'text-neon-red',
+  'neon-purple': 'text-neon-purple',
+  'neon-yellow': 'text-neon-yellow',
+  'neon-pink': 'text-neon-pink',
+};
+
 // Stat box component
 function StatBox({
   label,
@@ -317,13 +338,13 @@ function StatBox({
 }) {
   return (
     <div className={`
-      p-3 rounded-xl bg-bg-tertiary/50 border border-${color}/20
+      p-3 rounded-xl bg-bg-tertiary/50 border ${statBorderClasses[color] || 'border-white/20'}
       text-center
     `}>
       <p className="text-xs text-text-muted uppercase tracking-wider mb-0.5">
         {label}
       </p>
-      <p className={`text-xl font-display font-bold text-${color}`}>
+      <p className={`text-xl font-display font-bold ${statTextClasses[color] || 'text-white'}`}>
         {value}
       </p>
     </div>

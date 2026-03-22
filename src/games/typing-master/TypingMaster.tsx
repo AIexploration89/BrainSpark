@@ -1,5 +1,6 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChallengeBar } from '../../components/ui/ChallengeBar';
 import { useTypingGameStore, useTypingProgressStore } from './stores/typingStore';
 import { useTypingEngine } from './hooks/useTypingEngine';
 import { useTimer } from './hooks/useTimer';
@@ -45,8 +46,8 @@ export function TypingMaster() {
   useTimer(); // Initialize timer hook
 
   const [lastKeyCorrect, setLastKeyCorrect] = useState<boolean | null>(null);
-  const [storyChapterIndex] = useState(0);
-  const [storyLineIndex] = useState(0);
+  const [storyChapterIndex, setStoryChapterIndex] = useState(0);
+  const [storyLineIndex, setStoryLineIndex] = useState(0);
 
   // Track key correctness for visual feedback
   useEffect(() => {
@@ -122,16 +123,46 @@ export function TypingMaster() {
   // Handle retry
   const handleRetry = useCallback(() => {
     if (currentLevel) {
-      const content = getContentForLevel(currentLevel.id, currentMode === 'time-attack' ? 50 : 10);
-      const separator = currentLevel.id === 1 ? '' : ' ';
-      setTargetText(content.join(separator));
+      if (currentMode === 'story') {
+        // Replay the same story line
+        const chapter = storyChapters[storyChapterIndex];
+        if (chapter) {
+          setTargetText(chapter.content[storyLineIndex]);
+        }
+      } else {
+        const content = getContentForLevel(currentLevel.id, currentMode === 'time-attack' ? 50 : 10);
+        const separator = currentLevel.id === 1 ? '' : ' ';
+        setTargetText(content.join(separator));
+      }
       setGameState('countdown');
     }
-  }, [currentLevel, currentMode, setTargetText, setGameState]);
+  }, [currentLevel, currentMode, setTargetText, setGameState, storyChapterIndex, storyLineIndex]);
 
   // Handle next level
   const handleNextLevel = useCallback(() => {
-    if (currentLevel) {
+    if (currentMode === 'story') {
+      // Advance story: next line in chapter, or next chapter
+      const chapter = storyChapters[storyChapterIndex];
+      if (chapter && storyLineIndex + 1 < chapter.content.length) {
+        // Next line in current chapter
+        const nextLineIndex = storyLineIndex + 1;
+        setStoryLineIndex(nextLineIndex);
+        setTargetText(chapter.content[nextLineIndex]);
+        setGameState('countdown');
+      } else if (storyChapterIndex + 1 < storyChapters.length) {
+        // Next chapter
+        const nextChapterIndex = storyChapterIndex + 1;
+        setStoryChapterIndex(nextChapterIndex);
+        setStoryLineIndex(0);
+        setTargetText(storyChapters[nextChapterIndex].content[0]);
+        setGameState('countdown');
+      } else {
+        // Story complete, back to level select
+        setStoryChapterIndex(0);
+        setStoryLineIndex(0);
+        setGameState('level-select');
+      }
+    } else if (currentLevel) {
       const nextLevel = getLevelById(currentLevel.id + 1);
       if (nextLevel) {
         selectLevel(nextLevel);
@@ -139,7 +170,7 @@ export function TypingMaster() {
         setGameState('level-select');
       }
     }
-  }, [currentLevel, selectLevel, setGameState]);
+  }, [currentLevel, currentMode, selectLevel, setGameState, setTargetText, storyChapterIndex, storyLineIndex]);
 
   // Handle quit to menu
   const handleQuit = useCallback(() => {
@@ -310,6 +341,35 @@ function MainMenu({ onStart, onBack }: MainMenuProps) {
   const { progress } = useTypingProgressStore();
   const completedLevels = Object.values(progress.levels).filter(l => l.completed).length;
 
+  // Pre-compute which mini keyboard keys should glow (avoids Math.random in render/animate)
+  const glowingKeys = useMemo(() => {
+    const keys = new Set<string>();
+    [0, 1, 2].forEach((row) => {
+      const count = row === 2 ? 7 : 8;
+      for (let i = 0; i < count; i++) {
+        if (Math.random() > 0.7) {
+          keys.add(`${row}-${i}`);
+        }
+      }
+    });
+    return keys;
+  }, []);
+
+  // Pre-compute random delays for mini keyboard keys
+  const keyDelays = useMemo(() => {
+    const delays: Record<string, { delay: number; repeatDelay: number }> = {};
+    [0, 1, 2].forEach((row) => {
+      const count = row === 2 ? 7 : 8;
+      for (let i = 0; i < count; i++) {
+        delays[`${row}-${i}`] = {
+          delay: Math.random() * 2,
+          repeatDelay: Math.random() * 3,
+        };
+      }
+    });
+    return delays;
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
       {/* Matrix Code Rain Background */}
@@ -411,15 +471,15 @@ function MainMenu({ onStart, onBack }: MainMenuProps) {
                       <motion.div
                         key={i}
                         animate={{
-                          backgroundColor: Math.random() > 0.7
+                          backgroundColor: glowingKeys.has(`${row}-${i}`)
                             ? ['rgba(0,245,255,0.2)', 'rgba(0,245,255,0.6)', 'rgba(0,245,255,0.2)']
                             : 'rgba(255,255,255,0.1)',
                         }}
                         transition={{
                           duration: 0.5,
                           repeat: Infinity,
-                          delay: Math.random() * 2,
-                          repeatDelay: Math.random() * 3,
+                          delay: keyDelays[`${row}-${i}`].delay,
+                          repeatDelay: keyDelays[`${row}-${i}`].repeatDelay,
                         }}
                         className="w-2 h-2 rounded-[2px] bg-white/10"
                       />
@@ -484,6 +544,16 @@ function MainMenu({ onStart, onBack }: MainMenuProps) {
             />
           </motion.p>
         </div>
+      </motion.div>
+
+      {/* Challenge Level Selector */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="w-full max-w-sm relative z-10 mb-4"
+      >
+        <ChallengeBar gameId="typing-master" />
       </motion.div>
 
       {/* Action Buttons */}

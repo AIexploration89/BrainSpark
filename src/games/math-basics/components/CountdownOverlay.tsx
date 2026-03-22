@@ -37,6 +37,9 @@ export function CountdownOverlay({ onComplete, duration = 3 }: CountdownOverlayP
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-bg-primary/95 backdrop-blur-lg"
+      role="status"
+      aria-live="assertive"
+      aria-label={count > 0 ? `Starting in ${count}` : 'Go!'}
     >
       {/* Animated background rings */}
       <div className="absolute inset-0 flex items-center justify-center">

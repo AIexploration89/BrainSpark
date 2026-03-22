@@ -30,6 +30,7 @@ interface AnimalGameStore {
   roundStartTime: number | null;
   questionStartTime: number | null;
   timeRemaining: number | null;
+  timerDeadline: number | null;
 
   // Combo system
   combo: ComboState;
@@ -199,6 +200,7 @@ export const useAnimalGameStore = create<AnimalGameStore>((set, get) => ({
   roundStartTime: null,
   questionStartTime: null,
   timeRemaining: null,
+  timerDeadline: null,
   combo: {
     current: 0,
     multiplier: 1.0,
@@ -239,11 +241,13 @@ export const useAnimalGameStore = create<AnimalGameStore>((set, get) => ({
 
   startRound: () => {
     const { currentLevel } = get();
+    const timeLimit = currentLevel?.timeLimit || null;
     set({
       gameState: 'playing',
       roundStartTime: Date.now(),
       questionStartTime: Date.now(),
-      timeRemaining: currentLevel?.timeLimit || null,
+      timeRemaining: timeLimit,
+      timerDeadline: timeLimit ? Date.now() + timeLimit * 1000 : null,
     });
   },
 
@@ -373,27 +377,31 @@ export const useAnimalGameStore = create<AnimalGameStore>((set, get) => ({
 
   nextQuestion: () => {
     const { currentQuestionIndex, currentLevel } = get();
+    const timeLimit = currentLevel?.timeLimit || null;
     set({
       currentQuestionIndex: currentQuestionIndex + 1,
       questionStartTime: Date.now(),
-      timeRemaining: currentLevel?.timeLimit || null,
+      timeRemaining: timeLimit,
+      timerDeadline: timeLimit ? Date.now() + timeLimit * 1000 : null,
       hintUsedThisQuestion: false,
     });
   },
 
   pauseGame: () => {
-    const { gameState } = get();
+    const { gameState, timerDeadline } = get();
     if (gameState === 'playing') {
-      set({ gameState: 'paused' });
+      const timeRemaining = timerDeadline ? Math.max(0, Math.ceil((timerDeadline - Date.now()) / 1000)) : null;
+      set({ gameState: 'paused', timeRemaining, timerDeadline: null });
     }
   },
 
   resumeGame: () => {
-    const { gameState } = get();
+    const { gameState, timeRemaining } = get();
     if (gameState === 'paused') {
       set({
         gameState: 'playing',
         questionStartTime: Date.now(),
+        timerDeadline: timeRemaining !== null ? Date.now() + timeRemaining * 1000 : null,
       });
     }
   },
@@ -427,6 +435,7 @@ export const useAnimalGameStore = create<AnimalGameStore>((set, get) => ({
     roundStartTime: null,
     questionStartTime: null,
     timeRemaining: null,
+    timerDeadline: null,
     combo: {
       current: 0,
       multiplier: 1.0,
@@ -439,14 +448,17 @@ export const useAnimalGameStore = create<AnimalGameStore>((set, get) => ({
   }),
 
   tickTimer: () => {
-    const { timeRemaining, gameState } = get();
-    if (gameState !== 'playing' || timeRemaining === null) return;
+    const { timerDeadline, gameState } = get();
+    if (gameState !== 'playing' || timerDeadline === null) return;
+
+    const timeRemaining = Math.max(0, Math.ceil((timerDeadline - Date.now()) / 1000));
 
     if (timeRemaining <= 0) {
       // Time's up - auto skip
+      set({ timeRemaining: 0 });
       get().skipQuestion();
     } else {
-      set({ timeRemaining: timeRemaining - 1 });
+      set({ timeRemaining });
     }
   },
 }));
@@ -603,6 +615,7 @@ export const useAnimalProgressStore = create<AnimalProgressStore>()(
     }),
     {
       name: 'animal-kingdom-progress',
+      version: 1,
     }
   )
 );

@@ -10,6 +10,23 @@ interface LevelSelectorProps {
   onBack: () => void;
 }
 
+// Static class maps to avoid Tailwind JIT issues with dynamic class names
+const hoverBorderClasses: Record<string, string> = {
+  'neon-yellow': 'hover:border-neon-yellow/50',
+  'neon-purple': 'hover:border-neon-purple/50',
+  'neon-cyan': 'hover:border-neon-cyan/50',
+  'neon-green': 'hover:border-neon-green/50',
+  'neon-orange': 'hover:border-neon-orange/50',
+  'neon-pink': 'hover:border-neon-pink/50',
+};
+
+const diffBadgeClasses: Record<string, string> = {
+  'neon-green': 'bg-neon-green/20 text-neon-green',
+  'neon-cyan': 'bg-neon-cyan/20 text-neon-cyan',
+  'neon-orange': 'bg-neon-orange/20 text-neon-orange',
+  'neon-pink': 'bg-neon-pink/20 text-neon-pink',
+};
+
 export function LevelSelector({ era, onSelectLevel, onBack }: LevelSelectorProps) {
   const { getLevelProgress, isLevelUnlocked } = useHistoryProgressStore();
   const levels = getLevelsByEra(era);
@@ -66,7 +83,7 @@ export function LevelSelector({ era, onSelectLevel, onBack }: LevelSelectorProps
                 className={`
                   relative p-5 rounded-xl border-2 transition-all duration-300 text-left
                   ${unlocked
-                    ? `bg-bg-secondary/80 border-white/10 hover:border-${eraConfig.color}/50 cursor-pointer`
+                    ? `bg-bg-secondary/80 border-white/10 ${hoverBorderClasses[eraConfig.color] || 'hover:border-white/50'} cursor-pointer`
                     : 'bg-bg-secondary/40 border-white/5 cursor-not-allowed'
                   }
                   backdrop-blur-xl overflow-hidden
@@ -110,7 +127,7 @@ export function LevelSelector({ era, onSelectLevel, onBack }: LevelSelectorProps
                 <div className="flex items-center gap-2 mb-3">
                   <span
                     className={`px-2 py-0.5 rounded text-xs font-display uppercase ${
-                      unlocked ? `bg-${diffConfig.color}/20 text-${diffConfig.color}` : 'bg-white/5 text-white/30'
+                      unlocked ? (diffBadgeClasses[diffConfig.color] || 'bg-white/20 text-white') : 'bg-white/5 text-white/30'
                     }`}
                   >
                     {diffConfig.label}

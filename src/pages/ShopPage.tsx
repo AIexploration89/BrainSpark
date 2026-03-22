@@ -2,17 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useState, useEffect, useCallback } from 'react';
 import { Navbar } from '../components/layout/Navbar';
 import { Button } from '../components/ui/Button';
-
-// Mock user profile
-const mockUserProfile = {
-  nickname: 'SparkMaster',
-  avatar: '🚀',
-  level: 12,
-  xp: 2450,
-  xpToNextLevel: 3000,
-  sparks: 1250,
-  streak: 7,
-};
+import { useAuthStore } from '../stores/authStore';
 
 type ShopCategory = 'avatars' | 'themes' | 'powerups' | 'accessories';
 
@@ -60,8 +50,19 @@ const shopItems: ShopItem[] = [
 ];
 
 export function ShopPage() {
+  const user = useAuthStore((state) => state.user);
   const [selectedCategory, setSelectedCategory] = useState<ShopCategory>('avatars');
   const [purchaseModal, setPurchaseModal] = useState<ShopItem | null>(null);
+
+  const userProfile = {
+    nickname: user?.childName || 'Explorer',
+    avatar: user?.avatar || '🚀',
+    level: 1,
+    xp: 0,
+    xpToNextLevel: 1000,
+    sparks: 0,
+    streak: 0,
+  };
 
   const filteredItems = shopItems.filter(item => item.category === selectedCategory);
 
@@ -96,7 +97,7 @@ export function ShopPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary">
-      <Navbar isLoggedIn={true} userProfile={mockUserProfile} />
+      <Navbar isLoggedIn={true} userProfile={userProfile} />
 
       <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         {/* Header */}
@@ -119,7 +120,7 @@ export function ShopPage() {
             <span className="text-3xl">⚡</span>
             <div>
               <p className="text-text-muted text-xs uppercase tracking-wider">Your Sparks</p>
-              <p className="text-2xl font-display font-bold text-neon-yellow">{mockUserProfile.sparks.toLocaleString()}</p>
+              <p className="text-2xl font-display font-bold text-neon-yellow">{userProfile.sparks.toLocaleString()}</p>
             </div>
           </div>
         </motion.div>
@@ -205,12 +206,12 @@ export function ShopPage() {
               ) : (
                 <button
                   onClick={() => handlePurchase(item)}
-                  disabled={mockUserProfile.sparks < item.price}
+                  disabled={userProfile.sparks < item.price}
                   aria-label={`Buy ${item.name} for ${item.price} Sparks`}
                   className={`
                     w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-display uppercase tracking-wider
                     transition-all duration-300
-                    ${mockUserProfile.sparks >= item.price
+                    ${userProfile.sparks >= item.price
                       ? 'bg-gradient-to-r from-neon-yellow to-neon-orange text-bg-primary hover:shadow-[0_0_20px_rgba(255,136,0,0.5)]'
                       : 'bg-bg-tertiary text-text-muted cursor-not-allowed'
                     }

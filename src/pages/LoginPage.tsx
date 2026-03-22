@@ -2,28 +2,36 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
+import { useAuthStore } from '../stores/authStore';
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setIsLoading(true);
 
-    // Simulate login - in real app, this would call auth API
+    // Small delay for UX feedback
     setTimeout(() => {
+      const success = login(email, password);
       setIsLoading(false);
-      navigate('/dashboard');
-    }, 1000);
+      if (success) {
+        navigate('/dashboard');
+      } else {
+        setError('Invalid email or password. Please try again or sign up for a new account.');
+      }
+    }, 500);
   };
 
-  const handleSocialLogin = (provider: string) => {
-    console.log(`Login with ${provider}`);
-    // Simulate social login
-    navigate('/dashboard');
+  const handleSocialLogin = (_provider: string) => {
+    // Social login not implemented - show message
+    setError('Social login is not available yet. Please use email and password.');
   };
 
   return (
@@ -97,6 +105,18 @@ export function LoginPage() {
             </div>
           </div>
 
+          {/* Error message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-3 bg-neon-red/10 border border-neon-red/30 rounded-xl text-neon-red text-sm text-center"
+              role="alert"
+            >
+              {error}
+            </motion.div>
+          )}
+
           {/* Email form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -134,9 +154,13 @@ export function LoginPage() {
                 <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-bg-primary text-neon-cyan focus:ring-neon-cyan" />
                 Remember me
               </label>
-              <Link to="/forgot-password" className="text-neon-cyan hover:underline">
+              <button
+                type="button"
+                onClick={() => alert('Coming soon!')}
+                className="text-neon-cyan hover:underline"
+              >
                 Forgot password?
-              </Link>
+              </button>
             </div>
 
             <Button

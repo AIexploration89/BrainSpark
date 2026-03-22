@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChallengeBar } from '../../components/ui/ChallengeBar';
 import { useHistoryGameStore, useHistoryProgressStore } from './stores/historyStore';
 import { getNextLevel } from './data/levels';
 import { HISTORIAN_RANKS } from './types';
@@ -217,6 +218,16 @@ export function HistoryHeroes() {
                   </p>
                 </div>
               </div>
+            </motion.div>
+
+            {/* Challenge Level Selector */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.35 }}
+              className="w-full max-w-sm relative z-10 mb-4"
+            >
+              <ChallengeBar gameId="history-heroes" />
             </motion.div>
 
             {/* Start button */}

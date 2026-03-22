@@ -14,6 +14,7 @@ import type {
 } from '../types';
 import { SCORING, DIFFICULTY_CONFIG } from '../types';
 import { generateQuestions, getLevelById } from '../data/levels';
+import { useDifficultyStore } from '../../../stores/difficultyStore';
 
 interface HistoryGameStore {
   // Game state
@@ -30,6 +31,7 @@ interface HistoryGameStore {
   roundStartTime: number | null;
   questionStartTime: number | null;
   timeRemaining: number | null;
+  timerDeadline: number | null;
 
   // Combo system
   combo: ComboState;
@@ -204,6 +206,7 @@ export const useHistoryGameStore = create<HistoryGameStore>((set, get) => ({
   roundStartTime: null,
   questionStartTime: null,
   timeRemaining: null,
+  timerDeadline: null,
   combo: {
     current: 0,
     multiplier: 1.0,
@@ -225,10 +228,18 @@ export const useHistoryGameStore = create<HistoryGameStore>((set, get) => ({
   }),
 
   selectLevel: (level) => {
-    const questions = generateQuestions(level);
+    // Apply adaptive difficulty modifiers
+    const difficultyStore = useDifficultyStore.getState();
+    const adjustedLevel = {
+      ...level,
+      timeLimit: difficultyStore.applyTierToTimeLimit(level.timeLimit),
+      questionCount: difficultyStore.applyTierToQuestionCount(level.questionCount),
+    };
+
+    const questions = generateQuestions(adjustedLevel);
 
     set({
-      currentLevel: level,
+      currentLevel: adjustedLevel,
       questions,
       currentQuestionIndex: 0,
       questionResults: [],
@@ -248,11 +259,13 @@ export const useHistoryGameStore = create<HistoryGameStore>((set, get) => ({
 
   startRound: () => {
     const { currentLevel } = get();
+    const timeLimit = currentLevel?.timeLimit || null;
     set({
       gameState: 'playing',
       roundStartTime: Date.now(),
       questionStartTime: Date.now(),
-      timeRemaining: currentLevel?.timeLimit || null,
+      timeRemaining: timeLimit,
+      timerDeadline: timeLimit ? Date.now() + timeLimit * 1000 : null,
     });
   },
 
@@ -384,27 +397,31 @@ export const useHistoryGameStore = create<HistoryGameStore>((set, get) => ({
 
   nextQuestion: () => {
     const { currentQuestionIndex, currentLevel } = get();
+    const timeLimit = currentLevel?.timeLimit || null;
     set({
       currentQuestionIndex: currentQuestionIndex + 1,
       questionStartTime: Date.now(),
-      timeRemaining: currentLevel?.timeLimit || null,
+      timeRemaining: timeLimit,
+      timerDeadline: timeLimit ? Date.now() + timeLimit * 1000 : null,
       hintUsedThisQuestion: false,
     });
   },
 
   pauseGame: () => {
-    const { gameState } = get();
+    const { gameState, timerDeadline } = get();
     if (gameState === 'playing') {
-      set({ gameState: 'paused' });
+      const timeRemaining = timerDeadline ? Math.max(0, Math.ceil((timerDeadline - Date.now()) / 1000)) : null;
+      set({ gameState: 'paused', timeRemaining, timerDeadline: null });
     }
   },
 
   resumeGame: () => {
-    const { gameState } = get();
+    const { gameState, timeRemaining } = get();
     if (gameState === 'paused') {
       set({
         gameState: 'playing',
         questionStartTime: Date.now(),
+        timerDeadline: timeRemaining !== null ? Date.now() + timeRemaining * 1000 : null,
       });
     }
   },
@@ -421,6 +438,14 @@ export const useHistoryGameStore = create<HistoryGameStore>((set, get) => ({
       combo.maxReached,
       totalHintsUsed
     );
+
+    // Record performance for adaptive difficulty
+    useDifficultyStore.getState().recordPerformance({
+      gameId: 'history-heroes',
+      levelId: currentLevel.id,
+      accuracy: results.accuracy,
+      score: results.score,
+    });
 
     set({
       gameState: 'results',
@@ -439,6 +464,7 @@ export const useHistoryGameStore = create<HistoryGameStore>((set, get) => ({
     roundStartTime: null,
     questionStartTime: null,
     timeRemaining: null,
+    timerDeadline: null,
     combo: {
       current: 0,
       multiplier: 1.0,
@@ -453,14 +479,17 @@ export const useHistoryGameStore = create<HistoryGameStore>((set, get) => ({
   }),
 
   tickTimer: () => {
-    const { timeRemaining, gameState, showExplanation } = get();
-    if (gameState !== 'playing' || timeRemaining === null || showExplanation) return;
+    const { timerDeadline, gameState, showExplanation } = get();
+    if (gameState !== 'playing' || timerDeadline === null || showExplanation) return;
+
+    const timeRemaining = Math.max(0, Math.ceil((timerDeadline - Date.now()) / 1000));
 
     if (timeRemaining <= 0) {
       // Time's up - auto skip
+      set({ timeRemaining: 0 });
       get().skipQuestion();
     } else {
-      set({ timeRemaining: timeRemaining - 1 });
+      set({ timeRemaining });
     }
   },
 }));
@@ -623,6 +652,7 @@ export const useHistoryProgressStore = create<HistoryProgressStore>()(
     }),
     {
       name: 'history-heroes-progress',
+      version: 1,
     }
   )
 );

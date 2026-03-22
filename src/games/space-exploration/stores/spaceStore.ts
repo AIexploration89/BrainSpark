@@ -282,7 +282,7 @@ export const useSpaceGameStore = create<SpaceGameStore>((set, get) => ({
 
     // For explore mode
     if (gameMode === 'explore') {
-      const accuracy = (discoveredFacts.length / (visitedPlanets.length * 4)) * 100;
+      const accuracy = visitedPlanets.length > 0 ? (discoveredFacts.length / (visitedPlanets.length * 4)) * 100 : 0;
       let starsEarned = 0;
       if (accuracy >= STAR_THRESHOLDS.THREE_STARS) starsEarned = 3;
       else if (accuracy >= STAR_THRESHOLDS.TWO_STARS) starsEarned = 2;
@@ -492,6 +492,7 @@ export const useSpaceProgressStore = create<SpaceProgressStore>()(
     }),
     {
       name: 'space-exploration-progress',
+      version: 1,
     }
   )
 );

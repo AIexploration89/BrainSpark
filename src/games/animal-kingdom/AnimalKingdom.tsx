@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChallengeBar } from '../../components/ui/ChallengeBar';
 import { useAnimalGameStore, useAnimalProgressStore } from './stores/animalStore';
 import { getNextLevel } from './data/levels';
 import type { Level, AnimalCategory } from './types';
@@ -335,6 +336,16 @@ function MainMenu({ onStart, onBack, zoologistStats }: MainMenuProps) {
           <p className="text-text-muted text-xs uppercase tracking-wider">Animals</p>
           <p className="font-display font-bold text-neon-green">{zoologistStats.animalsLearned.length}</p>
         </div>
+      </motion.div>
+
+      {/* Challenge Level Selector */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="w-full max-w-sm relative z-10 mb-4"
+      >
+        <ChallengeBar gameId="animal-kingdom" />
       </motion.div>
 
       {/* Buttons */}

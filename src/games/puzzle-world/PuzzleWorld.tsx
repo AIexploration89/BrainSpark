@@ -1,5 +1,6 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChallengeBar } from '../../components/ui/ChallengeBar';
 import { usePuzzleGameStore, usePuzzleProgressStore } from './stores/puzzleStore';
 import { getNextLevel } from './data/levels';
 import type { Level, PuzzleMode } from './types';
@@ -21,13 +22,15 @@ export function PuzzleWorld() {
     currentMode,
     currentLevel,
     lastResults,
+    elapsedTime,
     setGameState,
     selectMode,
     selectLevel,
     pauseGame,
     resumeGame,
     resetGame,
-    startTimer,
+    setElapsedTime,
+    completeLevel,
   } = usePuzzleGameStore();
 
   const { updateLevelProgress } = usePuzzleProgressStore();
@@ -55,6 +58,27 @@ export function PuzzleWorld() {
     }
   }, [gameState, lastResults, updateLevelProgress]);
 
+  // Timer management - runs when gameState === 'playing', cleans up on pause/unmount
+  const elapsedTimeRef = useRef(elapsedTime);
+  elapsedTimeRef.current = elapsedTime;
+
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+
+    const startTime = Date.now() - elapsedTimeRef.current * 1000;
+    const interval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      setElapsedTime(elapsed);
+
+      // Check time limit
+      if (currentLevel?.timeLimit && elapsed >= currentLevel.timeLimit) {
+        completeLevel(false);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [gameState, setElapsedTime, completeLevel, currentLevel]);
+
   // Handle mode selection
   const handleSelectMode = useCallback(
     (mode: PuzzleMode) => {
@@ -74,8 +98,7 @@ export function PuzzleWorld() {
   // Handle countdown complete
   const handleCountdownComplete = useCallback(() => {
     setGameState('playing');
-    startTimer();
-  }, [setGameState, startTimer]);
+  }, [setGameState]);
 
   // Handle retry
   const handleRetry = useCallback(() => {
@@ -316,6 +339,16 @@ function MainMenu({ onStart, onBack }: MainMenuProps) {
         <p className="text-text-secondary text-lg max-w-md mx-auto">
           Challenge your brain with sliding puzzles, pattern matching, sequences, and jigsaws!
         </p>
+      </motion.div>
+
+      {/* Challenge Level Selector */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="w-full max-w-sm relative z-10 mb-4"
+      >
+        <ChallengeBar gameId="puzzle-world" />
       </motion.div>
 
       {/* Start button */}

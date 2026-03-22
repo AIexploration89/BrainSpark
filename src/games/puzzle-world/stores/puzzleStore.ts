@@ -26,7 +26,6 @@ interface PuzzleGameState {
   // Time tracking
   startTime: number;
   elapsedTime: number;
-  timerInterval: ReturnType<typeof setInterval> | null;
 
   // Move tracking
   moves: number;
@@ -58,8 +57,7 @@ interface PuzzleGameState {
   resetGame: () => void;
   pauseGame: () => void;
   resumeGame: () => void;
-  startTimer: () => void;
-  stopTimer: () => void;
+  setElapsedTime: (time: number) => void;
   useHint: () => void;
 
   // Sliding puzzle actions
@@ -93,7 +91,6 @@ export const usePuzzleGameStore = create<PuzzleGameState>()((set, get) => ({
   lastResults: null,
   startTime: 0,
   elapsedTime: 0,
-  timerInterval: null,
   moves: 0,
   hintsUsed: 0,
 
@@ -122,11 +119,6 @@ export const usePuzzleGameStore = create<PuzzleGameState>()((set, get) => ({
   selectMode: (mode) => set({ currentMode: mode, gameState: 'level-select' }),
 
   selectLevel: (level) => {
-    const state = get();
-    if (state.timerInterval) {
-      clearInterval(state.timerInterval);
-    }
-
     set({
       currentLevel: level,
       gameState: 'countdown',
@@ -134,7 +126,6 @@ export const usePuzzleGameStore = create<PuzzleGameState>()((set, get) => ({
       hintsUsed: 0,
       elapsedTime: 0,
       startTime: 0,
-      timerInterval: null,
       lastResults: null,
     });
 
@@ -152,10 +143,6 @@ export const usePuzzleGameStore = create<PuzzleGameState>()((set, get) => ({
   },
 
   resetGame: () => {
-    const state = get();
-    if (state.timerInterval) {
-      clearInterval(state.timerInterval);
-    }
     set({
       gameState: 'menu',
       currentMode: null,
@@ -163,7 +150,6 @@ export const usePuzzleGameStore = create<PuzzleGameState>()((set, get) => ({
       lastResults: null,
       startTime: 0,
       elapsedTime: 0,
-      timerInterval: null,
       moves: 0,
       hintsUsed: 0,
       slidingTiles: [],
@@ -182,43 +168,16 @@ export const usePuzzleGameStore = create<PuzzleGameState>()((set, get) => ({
   pauseGame: () => {
     const { gameState } = get();
     if (gameState === 'playing') {
-      get().stopTimer();
       set({ gameState: 'paused' });
     }
   },
 
   resumeGame: () => {
     set({ gameState: 'playing' });
-    get().startTimer();
   },
 
-  startTimer: () => {
-    const state = get();
-    if (state.timerInterval) {
-      clearInterval(state.timerInterval);
-    }
-
-    const startTime = Date.now() - state.elapsedTime * 1000;
-    const interval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      set({ elapsedTime: elapsed });
-
-      // Check time limit
-      const { currentLevel } = get();
-      if (currentLevel?.timeLimit && elapsed >= currentLevel.timeLimit) {
-        get().completeLevel(false);
-      }
-    }, 100);
-
-    set({ startTime, timerInterval: interval });
-  },
-
-  stopTimer: () => {
-    const state = get();
-    if (state.timerInterval) {
-      clearInterval(state.timerInterval);
-      set({ timerInterval: null });
-    }
+  setElapsedTime: (time) => {
+    set({ elapsedTime: time });
   },
 
   useHint: () => {
@@ -621,8 +580,6 @@ export const usePuzzleGameStore = create<PuzzleGameState>()((set, get) => ({
 
   // ==================== COMPLETE LEVEL ====================
   completeLevel: (completed) => {
-    get().stopTimer();
-
     const { currentMode, currentLevel, elapsedTime, moves, hintsUsed } = get();
     if (!currentMode || !currentLevel) return;
 
@@ -788,6 +745,7 @@ export const usePuzzleProgressStore = create<PuzzleProgressState>()(
     }),
     {
       name: 'puzzle-world-progress',
+      version: 1,
     }
   )
 );

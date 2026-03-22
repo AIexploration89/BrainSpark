@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChallengeBar } from '../../components/ui/ChallengeBar';
 import { useWordBuilderGameStore, useWordBuilderProgressStore } from './stores/wordBuilderStore';
 import { getNextLevelInCategory, CATEGORY_COLORS } from './data/levels';
 import type { Level, LetterAnimationState } from './types';
@@ -11,6 +12,37 @@ import { CategorySelector, LevelSelector } from './components/LevelSelector';
 import { ResultsScreen } from './components/ResultsScreen';
 import { CountdownOverlay } from './components/CountdownOverlay';
 import { PauseOverlay } from './components/PauseOverlay';
+
+// Static Tailwind class maps to avoid dynamic template literals (JIT won't generate them)
+const textColorMap: Record<string, string> = {
+  'neon-orange': 'text-neon-orange',
+  'neon-pink': 'text-neon-pink',
+  'neon-red': 'text-neon-red',
+  'neon-green': 'text-neon-green',
+  'neon-cyan': 'text-neon-cyan',
+  'neon-purple': 'text-neon-purple',
+  'neon-yellow': 'text-neon-yellow',
+};
+
+const fromColorMap: Record<string, string> = {
+  'neon-orange': 'from-neon-orange',
+  'neon-pink': 'from-neon-pink',
+  'neon-red': 'from-neon-red',
+  'neon-green': 'from-neon-green',
+  'neon-cyan': 'from-neon-cyan',
+  'neon-purple': 'from-neon-purple',
+  'neon-yellow': 'from-neon-yellow',
+};
+
+const toColorMap: Record<string, string> = {
+  'neon-orange': 'to-neon-orange',
+  'neon-pink': 'to-neon-pink',
+  'neon-red': 'to-neon-red',
+  'neon-green': 'to-neon-green',
+  'neon-cyan': 'to-neon-cyan',
+  'neon-purple': 'to-neon-purple',
+  'neon-yellow': 'to-neon-yellow',
+};
 
 export function WordBuilder() {
   const {
@@ -408,6 +440,16 @@ function MainMenu({ onStart, onBack }: MainMenuProps) {
         </p>
       </motion.div>
 
+      {/* Challenge Level Selector */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="w-full max-w-sm relative z-10 mb-4"
+      >
+        <ChallengeBar gameId="word-builder" />
+      </motion.div>
+
       {/* Buttons */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
@@ -552,7 +594,7 @@ function GameplayScreen({
         {/* Score */}
         <div className="text-right">
           <p className="text-xs text-text-muted uppercase">Score</p>
-          <p className={`font-display font-bold text-${colors.primary} text-xl`}>
+          <p className={`font-display font-bold ${textColorMap[colors.primary] || 'text-white'} text-xl`}>
             {currentScore.toLocaleString()}
           </p>
         </div>
@@ -564,7 +606,7 @@ function GameplayScreen({
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${(currentChallengeIndex / totalChallenges) * 100}%` }}
-            className={`h-full bg-gradient-to-r from-${colors.primary} to-${colors.secondary} rounded-full`}
+            className={`h-full bg-gradient-to-r ${fromColorMap[colors.primary] || 'from-white'} ${toColorMap[colors.secondary] || 'to-white'} rounded-full`}
           />
         </div>
       </div>
@@ -612,7 +654,7 @@ function GameplayScreen({
                 className="flex items-center justify-center gap-2"
               >
                 <span className="text-2xl">{comboMessage.emoji}</span>
-                <span className={`text-xl font-display font-bold text-${colors.primary}`}>
+                <span className={`text-xl font-display font-bold ${textColorMap[colors.primary] || 'text-white'}`}>
                   {comboMessage.message}
                 </span>
                 <span className="text-2xl">{comboMessage.emoji}</span>

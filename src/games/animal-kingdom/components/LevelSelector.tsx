@@ -5,6 +5,21 @@ import { getLevelsByCategory } from '../data/levels';
 import { useAnimalProgressStore } from '../stores/animalStore';
 import { JungleBackground } from './JungleBackground';
 
+// Static Tailwind class maps to avoid dynamic template literals (JIT won't detect them)
+const bgColorMap: Record<string, string> = {
+  'neon-green': 'bg-neon-green',
+  'neon-cyan': 'bg-neon-cyan',
+  'neon-orange': 'bg-neon-orange',
+  'neon-pink': 'bg-neon-pink',
+};
+
+const textColorMap: Record<string, string> = {
+  'neon-green': 'text-neon-green',
+  'neon-cyan': 'text-neon-cyan',
+  'neon-orange': 'text-neon-orange',
+  'neon-pink': 'text-neon-pink',
+};
+
 interface LevelSelectorProps {
   category: AnimalCategory;
   onSelectLevel: (level: Level) => void;
@@ -85,7 +100,7 @@ export function LevelSelector({ category, onSelectLevel, onBack }: LevelSelector
                     absolute -top-2 -left-2 w-8 h-8 rounded-full flex items-center justify-center
                     font-display font-bold text-sm
                     ${isUnlocked
-                      ? `bg-${diffConfig.color} text-bg-primary`
+                      ? `${bgColorMap[diffConfig.color] || 'bg-white'} text-bg-primary`
                       : 'bg-bg-tertiary text-text-muted'
                     }
                   `}
@@ -101,7 +116,7 @@ export function LevelSelector({ category, onSelectLevel, onBack }: LevelSelector
                   {/* Difficulty icon */}
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-2xl">{diffConfig.icon}</span>
-                    <span className={`text-xs font-display font-bold text-${diffConfig.color}`}>
+                    <span className={`text-xs font-display font-bold ${textColorMap[diffConfig.color] || 'text-white'}`}>
                       {diffConfig.label}
                     </span>
                   </div>

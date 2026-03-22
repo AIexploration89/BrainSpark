@@ -12,6 +12,7 @@ import { LevelSelector, OperationSelector } from './components/LevelSelector';
 import { ResultsScreen } from './components/ResultsScreen';
 import { CountdownOverlay, TimerBar } from './components/CountdownOverlay';
 import { PauseOverlay } from './components/PauseOverlay';
+import { ChallengeBar } from '../../components/ui/ChallengeBar';
 
 export function MathBasics() {
   const {
@@ -377,6 +378,16 @@ function MainMenu({ onStart, onBack }: MainMenuProps) {
         <p className="text-text-secondary text-lg max-w-md">
           Master addition, subtraction, multiplication, and division!
         </p>
+      </motion.div>
+
+      {/* Challenge Level Selector */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="w-full max-w-sm relative z-10 mb-4"
+      >
+        <ChallengeBar gameId="math-basics" />
       </motion.div>
 
       {/* Buttons */}

@@ -15,6 +15,8 @@ export function useTimer({ onComplete }: UseTimerProps = {}) {
   } = useTypingGameStore();
 
   const intervalRef = useRef<number | null>(null);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   const startTimer = useCallback((duration: number) => {
     setTimerDuration(duration);
@@ -28,14 +30,24 @@ export function useTimer({ onComplete }: UseTimerProps = {}) {
   }, []);
 
   useEffect(() => {
-    if (gameState === 'playing' && timeRemaining !== null && timeRemaining > 0) {
+    // Only start/stop based on gameState changes
+    const currentTime = useTypingGameStore.getState().timeRemaining;
+    if (gameState === 'playing' && currentTime !== null && currentTime > 0) {
+      // Clear any existing interval before starting a new one
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
       intervalRef.current = window.setInterval(() => {
-        const newTime = (timeRemaining ?? 0) - 1;
+        const latestTime = useTypingGameStore.getState().timeRemaining;
+        const newTime = (latestTime ?? 0) - 1;
         updateTimer(newTime);
 
         if (newTime <= 0) {
-          stopTimer();
-          onComplete?.();
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+          onCompleteRef.current?.();
         }
       }, 1000);
     } else {
@@ -43,7 +55,7 @@ export function useTimer({ onComplete }: UseTimerProps = {}) {
     }
 
     return () => stopTimer();
-  }, [gameState, timeRemaining, updateTimer, stopTimer, onComplete]);
+  }, [gameState, updateTimer, stopTimer]);
 
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {

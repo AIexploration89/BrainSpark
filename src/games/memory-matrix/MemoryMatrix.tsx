@@ -1,8 +1,9 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMemoryGameStore, useMemoryProgressStore } from './stores/memoryStore';
 import { getNextLevel } from './data/levels';
 import type { Level } from './types';
+import { ChallengeBar } from '../../components/ui/ChallengeBar';
 
 // Components
 import { GameGrid } from './components/GameGrid';
@@ -22,8 +23,6 @@ export function MemoryMatrix() {
     lastResults,
     setGameState,
     selectLevel,
-    generatePattern,
-    showNextPatternCell,
     selectCell,
     pauseGame,
     resumeGame,
@@ -32,6 +31,14 @@ export function MemoryMatrix() {
 
   const { updateLevelProgress } = useMemoryProgressStore();
   const patternTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Stable refs for Zustand actions to avoid useEffect re-triggers
+  const generatePatternRef = useRef(useMemoryGameStore.getState().generatePattern);
+  const showNextPatternCellRef = useRef(useMemoryGameStore.getState().showNextPatternCell);
+  useMemo(() => {
+    generatePatternRef.current = useMemoryGameStore.getState().generatePattern;
+    showNextPatternCellRef.current = useMemoryGameStore.getState().showNextPatternCell;
+  }, []);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -66,13 +73,13 @@ export function MemoryMatrix() {
 
       // If pattern hasn't started yet, generate it
       if (pattern.length === 0) {
-        generatePattern();
+        generatePatternRef.current();
         return;
       }
 
       // Schedule next cell display
       patternTimerRef.current = setTimeout(() => {
-        showNextPatternCell();
+        showNextPatternCellRef.current();
       }, currentLevel.displayTime);
 
       return () => {
@@ -81,7 +88,7 @@ export function MemoryMatrix() {
         }
       };
     }
-  }, [gameState, currentLevel, pattern.length, currentPatternIndex, generatePattern, showNextPatternCell]);
+  }, [gameState, currentPatternIndex]);
 
   // Handle level selection
   const handleSelectLevel = useCallback((level: Level) => {
@@ -269,6 +276,16 @@ function MainMenu({ onStart, onBack }: MainMenuProps) {
         <p className="text-text-secondary text-lg max-w-md">
           Test your memory! Watch the pattern, then recreate it.
         </p>
+      </motion.div>
+
+      {/* Challenge Level Selector */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="w-full max-w-sm relative z-10 mb-4"
+      >
+        <ChallengeBar gameId="memory-matrix" />
       </motion.div>
 
       <motion.div

@@ -1,98 +1,13 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Navbar } from '../components/layout/Navbar';
 import { Button } from '../components/ui/Button';
 import { GameCard } from '../components/ui/GameCard';
-import type { Game } from '../types';
+import { implementedGames } from '../data/games';
 
-// Game data
-const games: Game[] = [
-  {
-    id: 'typing-master',
-    name: 'Typing Master',
-    description: 'Master the keyboard from home row to paragraphs. Track WPM, accuracy, and unlock new challenges.',
-    icon: '⌨️',
-    color: 'cyan',
-    category: 'skills',
-    ageRange: 'Ages 5-12',
-    difficulty: 'medium',
-    isHot: true,
-  },
-  {
-    id: 'mouse-expert',
-    name: 'Mouse Expert',
-    description: 'Precision clicking, path tracing, and drag challenges. Become a mouse control master.',
-    icon: '🖱️',
-    color: 'pink',
-    category: 'skills',
-    ageRange: 'Ages 3-10',
-    difficulty: 'easy',
-  },
-  {
-    id: 'physics-lab',
-    name: 'Physics Lab',
-    description: 'Explore gravity, friction, momentum, and energy through interactive puzzle gameplay.',
-    icon: '🔬',
-    color: 'purple',
-    category: 'academic',
-    ageRange: 'Ages 6-12',
-    difficulty: 'hard',
-    isNew: true,
-  },
-  {
-    id: 'math-basics',
-    name: 'Math Basics',
-    description: 'From counting to division. Speed math, number crunching, and story problems await.',
-    icon: '➕',
-    color: 'green',
-    category: 'academic',
-    ageRange: 'Ages 3-12',
-    difficulty: 'medium',
-  },
-  {
-    id: 'word-builder',
-    name: 'Word Builder',
-    description: 'Build vocabulary through spelling bees, word searches, and letter tile puzzles.',
-    icon: '📝',
-    color: 'orange',
-    category: 'academic',
-    ageRange: 'Ages 4-10',
-    difficulty: 'easy',
-  },
-  {
-    id: 'code-quest',
-    name: 'Code Quest',
-    description: 'Learn programming logic with visual blocks. Sequences, loops, and conditionals made fun.',
-    icon: '💻',
-    color: 'cyan',
-    category: 'academic',
-    ageRange: 'Ages 6-12',
-    difficulty: 'hard',
-    isNew: true,
-  },
-  {
-    id: 'memory-matrix',
-    name: 'Memory Matrix',
-    description: 'Pattern recognition and memory challenges. Train your brain with increasingly complex puzzles.',
-    icon: '🧠',
-    color: 'pink',
-    category: 'cognitive',
-    ageRange: 'Ages 4-12',
-    difficulty: 'medium',
-  },
-  {
-    id: 'rhythm-reflex',
-    name: 'Rhythm & Reflex',
-    description: 'Beat-matching coordination training. Hit the notes, build combos, master the rhythm.',
-    icon: '🎵',
-    color: 'purple',
-    category: 'cognitive',
-    ageRange: 'Ages 5-12',
-    difficulty: 'medium',
-    isHot: true,
-  },
-];
+// Show a curated selection of games on the landing page (8 featured)
+const featuredGames = implementedGames.slice(0, 8);
 
 const features = [
   {
@@ -194,7 +109,7 @@ export function LandingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-purple opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-purple" />
             </span>
-            <span className="text-sm font-medium">New: Physics Lab & Code Quest games now live!</span>
+            <span className="text-sm font-medium">New: 12 games now live including Science, Geography, & more!</span>
           </motion.div>
 
           {/* Main headline */}
@@ -245,8 +160,8 @@ export function LandingPage() {
             transition={{ delay: 0.9 }}
             className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto"
           >
-            <Stat value="8" label="Games" />
-            <Stat value="50+" label="Levels" />
+            <Stat value="12" label="Games" />
+            <Stat value="100+" label="Levels" />
             <Stat value="100%" label="Fun" />
           </motion.div>
         </motion.div>
@@ -297,16 +212,16 @@ export function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4">
           <SectionHeader
             tag="The Games"
-            title="8 games at launch. More coming soon."
-            description="From typing mastery to physics puzzles, every game builds real-world skills."
+            title="12 games and growing. More coming soon."
+            description="From typing mastery to physics experiments, every game builds real-world skills."
           />
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
-            {games.map((game, index) => (
+            {featuredGames.map((game, index) => (
               <GameCard
                 key={game.id}
                 game={game}
-                progress={Math.floor(Math.random() * 100)}
+                progress={0}
                 delay={index}
                 onClick={() => navigate(`/play/${game.id}`)}
               />
@@ -330,7 +245,7 @@ export function LandingPage() {
               price="$0"
               description="Perfect for trying out BrainSpark"
               features={[
-                'All 8 games included',
+                'All 12 games included',
                 'Basic progress tracking',
                 '1 child profile',
                 'Daily challenges (limited)',
@@ -635,12 +550,12 @@ function FooterColumn({ title, links }: { title: string; links: { label: string;
                 {link.label}
               </a>
             ) : (
-              <a
-                href={link.href}
+              <Link
+                to={link.href}
                 className="text-text-secondary hover:text-neon-cyan transition-colors text-sm"
               >
                 {link.label}
-              </a>
+              </Link>
             )}
           </li>
         ))}

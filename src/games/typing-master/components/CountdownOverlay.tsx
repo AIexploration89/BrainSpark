@@ -264,6 +264,9 @@ export function CountdownOverlay({ onComplete, duration = 3 }: CountdownOverlayP
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      role="status"
+      aria-live="assertive"
+      aria-label={count > 0 ? `Starting in ${count}` : 'Go!'}
       className="fixed inset-0 z-50 flex items-center justify-center bg-bg-primary/95 backdrop-blur-md overflow-hidden"
     >
       {/* Matrix rain background */}

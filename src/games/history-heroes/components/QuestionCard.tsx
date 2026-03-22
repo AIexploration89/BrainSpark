@@ -21,6 +21,25 @@ interface QuestionCardProps {
   disabled: boolean;
 }
 
+// Static class maps to avoid Tailwind JIT issues with dynamic class names
+const borderColorClasses: Record<string, string> = {
+  'neon-yellow': 'border-neon-yellow',
+  'neon-purple': 'border-neon-purple',
+  'neon-cyan': 'border-neon-cyan',
+  'neon-green': 'border-neon-green',
+  'neon-orange': 'border-neon-orange',
+  'neon-pink': 'border-neon-pink',
+};
+
+const textColorClasses: Record<string, string> = {
+  'neon-yellow': 'text-neon-yellow',
+  'neon-purple': 'text-neon-purple',
+  'neon-cyan': 'text-neon-cyan',
+  'neon-green': 'text-neon-green',
+  'neon-orange': 'text-neon-orange',
+  'neon-pink': 'text-neon-pink',
+};
+
 export function QuestionCard({
   question,
   questionNumber,
@@ -311,7 +330,7 @@ export function QuestionCard({
                     relative p-4 rounded-xl border-2 transition-all duration-200
                     text-left font-display font-semibold
                     ${isSelected
-                      ? `border-${eraConfig?.color || 'neon-purple'} text-${eraConfig?.color || 'neon-purple'}`
+                      ? `${borderColorClasses[eraConfig?.color || 'neon-purple'] || 'border-neon-purple'} ${textColorClasses[eraConfig?.color || 'neon-purple'] || 'text-neon-purple'}`
                       : 'bg-bg-secondary/60 border-white/10 text-white hover:border-white/30 hover:bg-bg-secondary'
                     }
                     ${(disabled || selectedAnswer) && !isSelected ? 'opacity-50 cursor-not-allowed' : ''}

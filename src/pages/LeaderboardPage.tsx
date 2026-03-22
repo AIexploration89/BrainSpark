@@ -1,17 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Navbar } from '../components/layout/Navbar';
-
-// Mock user profile
-const mockUserProfile = {
-  nickname: 'SparkMaster',
-  avatar: '🚀',
-  level: 12,
-  xp: 2450,
-  xpToNextLevel: 3000,
-  sparks: 1250,
-  streak: 7,
-};
+import { useAuthStore } from '../stores/authStore';
 
 type LeaderboardType = 'global' | 'weekly' | 'family';
 
@@ -58,7 +48,18 @@ const familyLeaderboard: LeaderboardEntry[] = [
 ];
 
 export function LeaderboardPage() {
+  const user = useAuthStore((state) => state.user);
   const [leaderboardType, setLeaderboardType] = useState<LeaderboardType>('global');
+
+  const userProfile = {
+    nickname: user?.childName || 'Explorer',
+    avatar: user?.avatar || '🚀',
+    level: 1,
+    xp: 0,
+    xpToNextLevel: 1000,
+    sparks: 0,
+    streak: 0,
+  };
 
   const leaderboards = {
     global: globalLeaderboard,
@@ -84,7 +85,7 @@ export function LeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary">
-      <Navbar isLoggedIn={true} userProfile={mockUserProfile} />
+      <Navbar isLoggedIn={true} userProfile={userProfile} />
 
       <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         {/* Header */}
@@ -194,7 +195,7 @@ export function LeaderboardPage() {
         >
           {currentLeaderboard.slice(3).map((entry, i) => (
             <motion.div
-              key={entry.rank}
+              key={`${leaderboardType}-${entry.rank}`}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 + i * 0.05 }}
@@ -243,11 +244,11 @@ export function LeaderboardPage() {
             <p className="text-text-secondary text-sm mb-2">Your Global Rank</p>
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-3xl">
-                {mockUserProfile.avatar}
+                {userProfile.avatar}
               </div>
               <div className="flex-1">
-                <p className="font-display font-bold text-white text-xl">{mockUserProfile.nickname}</p>
-                <p className="text-text-muted">Level {mockUserProfile.level}</p>
+                <p className="font-display font-bold text-white text-xl">{userProfile.nickname}</p>
+                <p className="text-text-muted">Level {userProfile.level}</p>
               </div>
               <div className="text-right">
                 <p className="font-display font-bold text-4xl text-neon-cyan">#47</p>

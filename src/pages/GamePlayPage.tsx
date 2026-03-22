@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { lazy, Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 
@@ -16,12 +16,104 @@ const HistoryHeroes = lazy(() => import('../games/history-heroes').then(m => ({ 
 const AnimalKingdom = lazy(() => import('../games/animal-kingdom').then(m => ({ default: m.AnimalKingdom })));
 const PuzzleWorld = lazy(() => import('../games/puzzle-world').then(m => ({ default: m.PuzzleWorld })));
 
+// Component reference lookup - avoids instantiating all 12 lazy components as JSX on every render
+const GameComponentMap: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  'memory-matrix': MemoryMatrix,
+  'code-quest': CodeQuest,
+  'physics-lab': PhysicsLab,
+  'math-basics': MathBasics,
+  'typing-master': TypingMaster,
+  'word-builder': WordBuilder,
+  'space-exploration': SpaceExploration,
+  'geography-explorer': GeographyExplorer,
+  'science-explorer': ScienceExplorer,
+  'history-heroes': HistoryHeroes,
+  'animal-kingdom': AnimalKingdom,
+  'puzzle-world': PuzzleWorld,
+};
+
+// Error boundary for lazy-loaded game components (BUG-022)
+interface GameErrorBoundaryProps {
+  gameId: string;
+  onReset: () => void;
+  children: React.ReactNode;
+}
+
+interface GameErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class GameErrorBoundary extends React.Component<GameErrorBoundaryProps, GameErrorBoundaryState> {
+  constructor(props: GameErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): GameErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  handleRetry = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
+          <div className="text-center max-w-md">
+            <div className="text-6xl mb-6">😵</div>
+            <h1 className="text-2xl font-display font-bold text-white mb-3">
+              Oops! Something went wrong
+            </h1>
+            <p className="text-text-secondary mb-6">
+              The game ran into an unexpected error. You can try again or go back to the games list.
+            </p>
+            {this.state.error && (
+              <p className="text-xs text-text-muted mb-6 font-mono bg-bg-secondary p-3 rounded-lg break-all">
+                {this.state.error.message}
+              </p>
+            )}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                onClick={this.handleRetry}
+                className="px-6 py-3 bg-neon-cyan/20 border border-neon-cyan/30 text-neon-cyan rounded-xl font-display font-semibold hover:bg-neon-cyan/30 transition-colors"
+              >
+                Try Again
+              </button>
+              <button
+                onClick={this.props.onReset}
+                className="px-6 py-3 bg-bg-secondary border border-white/10 text-text-secondary rounded-xl font-display font-semibold hover:text-white transition-colors"
+              >
+                Back to Games
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 function GameLoadingFallback() {
   return (
-    <div className="min-h-screen bg-bg-primary flex items-center justify-center">
+    <div className="min-h-screen bg-bg-primary flex items-center justify-center" role="status" aria-label="Loading game">
       <div className="text-center">
-        <div className="spinner mx-auto mb-4" />
-        <p className="text-text-secondary font-display">Loading game...</p>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="spinner mx-auto mb-4"
+        />
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-text-secondary font-display"
+        >
+          Loading game...
+        </motion.p>
       </div>
     </div>
   );
@@ -137,7 +229,7 @@ export function GamePlayPage() {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
 
-  const game = gameId ? gameInfo[gameId] : null;
+  const game = gameId && Object.prototype.hasOwnProperty.call(gameInfo, gameId) ? gameInfo[gameId] : null;
 
   if (!game) {
     return (
@@ -150,24 +242,17 @@ export function GamePlayPage() {
     );
   }
 
-  // Route to actual game components
-  const gameComponents: Record<string, React.ReactNode> = {
-    'memory-matrix': <MemoryMatrix />,
-    'code-quest': <CodeQuest />,
-    'physics-lab': <PhysicsLab />,
-    'math-basics': <MathBasics />,
-    'typing-master': <TypingMaster />,
-    'word-builder': <WordBuilder />,
-    'space-exploration': <SpaceExploration />,
-    'geography-explorer': <GeographyExplorer />,
-    'science-explorer': <ScienceExplorer />,
-    'history-heroes': <HistoryHeroes />,
-    'animal-kingdom': <AnimalKingdom />,
-    'puzzle-world': <PuzzleWorld />,
-  };
+  // Route to actual game components - use component references, not JSX instances
+  const GameComponent = gameId ? GameComponentMap[gameId] : undefined;
 
-  if (gameId && gameComponents[gameId]) {
-    return <Suspense fallback={<GameLoadingFallback />}>{gameComponents[gameId]}</Suspense>;
+  if (GameComponent) {
+    return (
+      <GameErrorBoundary gameId={gameId!} onReset={() => navigate('/games')}>
+        <Suspense fallback={<GameLoadingFallback />}>
+          <GameComponent />
+        </Suspense>
+      </GameErrorBoundary>
+    );
   }
 
   const colorClass = colorClasses[game.color];

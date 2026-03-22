@@ -255,6 +255,14 @@ export const useCodeQuestStore = create<CodeQuestStore>((set, get) => ({
     const { currentLevel, programBlocks } = get();
     if (!currentLevel || programBlocks.length === 0) return;
 
+    // Validate that the program doesn't expand beyond limits
+    try {
+      expandProgram(programBlocks);
+    } catch {
+      get().failLevel('Program has too many commands. Simplify your loops.');
+      return;
+    }
+
     // Save program blocks before resetting level state
     const savedBlocks = [...programBlocks];
 
@@ -285,7 +293,13 @@ export const useCodeQuestStore = create<CodeQuestStore>((set, get) => ({
     if (!currentLevel || !isExecuting) return null;
 
     // Expand loops into flat command list
-    const expandedCommands = expandProgram(programBlocks);
+    let expandedCommands: CommandBlock[];
+    try {
+      expandedCommands = expandProgram(programBlocks);
+    } catch {
+      get().failLevel('Program has too many commands. Simplify your loops.');
+      return null;
+    }
 
     if (currentExecutionIndex >= expandedCommands.length) {
       // Check win condition
@@ -365,7 +379,13 @@ export const useCodeQuestStore = create<CodeQuestStore>((set, get) => ({
   resumeGame: () => {
     const { gameState, currentExecutionIndex, programBlocks } = get();
     if (gameState === 'paused') {
-      const expandedCommands = expandProgram(programBlocks);
+      let expandedCommands: CommandBlock[];
+      try {
+        expandedCommands = expandProgram(programBlocks);
+      } catch {
+        get().failLevel('Program has too many commands. Simplify your loops.');
+        return;
+      }
       if (currentExecutionIndex < expandedCommands.length) {
         set({ gameState: 'executing', isExecuting: true });
       } else {
@@ -497,6 +517,8 @@ function getCommandColor(type: CommandType): string {
   return colors[type];
 }
 
+const MAX_EXPANDED_COMMANDS = 500;
+
 // Expand loops into flat command list
 function expandProgram(blocks: CommandBlock[]): CommandBlock[] {
   const expanded: CommandBlock[] = [];
@@ -522,12 +544,19 @@ function expandProgram(blocks: CommandBlock[]): CommandBlock[] {
       // Expand loop content
       for (let r = 0; r < repeatCount; r++) {
         expanded.push(...expandProgram(loopContent));
+        if (expanded.length > MAX_EXPANDED_COMMANDS) {
+          throw new Error('Too many commands');
+        }
       }
     } else if (block.type !== 'loop_end') {
       expanded.push(block);
       i++;
     } else {
       i++;
+    }
+
+    if (expanded.length > MAX_EXPANDED_COMMANDS) {
+      throw new Error('Too many commands');
     }
   }
 
@@ -765,6 +794,7 @@ export const useCodeQuestProgressStore = create<CodeQuestProgressStore>()(
     }),
     {
       name: 'code-quest-progress',
+      version: 1,
     }
   )
 );

@@ -32,9 +32,16 @@ BrainSpark is an educational gaming platform for kids featuring interactive lear
 
 ```
 src/
+├── stores/              # Shared Zustand stores
+│   ├── authStore.ts     # Authentication state (login, signup, logout)
+│   ├── difficultyStore.ts # Adaptive difficulty system (tiers, practice mode)
+│   └── difficultyHelpers.ts # Shared helpers for game store integration
+├── data/
+│   └── games.ts         # Centralized game definitions (single source of truth)
 ├── components/
+│   ├── auth/            # ProtectedRoute component
 │   ├── layout/          # Navbar, layout components
-│   └── ui/              # Reusable UI components (Button, Card, GameCard)
+│   └── ui/              # Reusable UI components (Button, Card, GameCard, ChallengeBar)
 ├── games/               # Individual game modules (lazy-loaded via React.lazy)
 │   ├── animal-kingdom/  # Animal quiz game (4 categories)
 │   ├── code-quest/      # Visual block programming (30 levels)
@@ -77,6 +84,31 @@ games/[game-name]/
     ├── LevelSelector.tsx
     └── [game-specific].tsx
 ```
+
+## Adaptive Difficulty System
+
+Kids can freely choose their challenge level via the ChallengeBar component:
+- **Explorer** (easy): 50% more time, 20% fewer questions, double hints, 1x XP
+- **Adventurer** (normal): Standard settings, 1x XP
+- **Champion** (hard): 30% less time, 30% more questions, half hints, 1.5x XP
+- **Practice Mode**: No time limits, unlimited hints, 0.5x XP
+
+Key behaviors:
+- ChallengeBar appears in every game's main menu
+- Tier modifiers applied via `useDifficultyStore.getState()` in each game store's `selectLevel`
+- Performance recorded after each round for adaptive suggestions (sliding window of 5 attempts)
+- Suggestion algorithm: <60% accuracy → suggest Explorer, >85% → suggest Champion
+- Flexible unlock: kids can access levels up to 2 levels ahead of their highest played level
+- All stores use `version: 1` for localStorage migration support
+
+Files: `src/stores/difficultyStore.ts`, `src/stores/difficultyHelpers.ts`, `src/components/ui/ChallengeBar.tsx`
+
+## Authentication
+
+Client-side auth via Zustand persist store:
+- `src/stores/authStore.ts` - login/signup/logout with localStorage persistence
+- `src/components/auth/ProtectedRoute.tsx` - redirects unauthenticated users to /login
+- Dashboard, Games, Shop, Leaderboard routes are protected
 
 ## Design System
 
@@ -232,7 +264,7 @@ npm run preview  # Preview production build
 - `console.log` and `debugger` stripped from production builds
 - `.env*` files excluded via `.gitignore`
 - Input validation on signup form fields
-- No real backend auth yet - login accepts any credentials (see `bugs_to_fix.json` for full audit)
+- Client-side auth via `useAuthStore` (Zustand + persist); credentials hashed and stored in localStorage
 - Game progress stored in localStorage is client-side only and tamperable via devtools
 - See `bugs_to_fix.json` for the full security audit with 12 findings
 
@@ -343,3 +375,27 @@ const bgGlowClasses: Record<string, string> = {
 **Files affected:** GamePlayPage.tsx
 **Tags:** #performance #code-splitting #react
 **Frequency:** 1
+
+## Gotchas
+- **Zustand persist versioning**: All persist stores need `version: 1` in config for future migrations (freq:2)
+- **Object lookup vs prototype**: `gameInfo[id]` hits `toString`/`constructor` via prototype; use `hasOwnProperty.call()` (freq:1)
+- **Security tests vitest**: Tests run via `npx vitest run src/__tests__/security.test.ts`; 20 adversarial tests (freq:1)
+- **Store timer leak**: Move `setInterval` to component `useEffect` with cleanup; don't store interval ID in Zustand (freq:1)
+- **Timer drift**: Use wall-clock `timerDeadline` not decrement; `tickTimer` computes `Math.ceil((deadline-Date.now())/1000)` (freq:6)
+- **Division by zero guards**: Always guard ratios like `facts/planets*4` with `length > 0` ternary (freq:1)
+- **Overlay a11y**: CountdownOverlay needs `role="status" aria-live="assertive"`, PauseOverlay needs `role="dialog" aria-modal="true"` (freq:1)
+- **Tailwind JIT dynamic classes**: Use static lookup maps not template literals `map[color] || 'text-white'` (freq:4)
+- **Games data duplication**: Dashboard/GamesPage/LandingPage had separate game arrays; centralized to `src/data/games.ts` (freq:1)
+- **Button rounded-inherit**: Not a valid Tailwind class; use `rounded-[inherit]` with brackets (freq:1)
+- **animate-shimmer undefined**: GameCard/Button reference `animate-shimmer` but keyframes weren't defined in index.css (freq:1)
+- **Test files in tsconfig**: `src/__tests__/` must be excluded from `tsconfig.app.json` to avoid vitest type errors in build (freq:1)
+- **Mobile nav stays open**: MobileNavLink needs `onClick` to call `setMobileMenuOpen(false)` on navigation (freq:1)
+- **useEffect timer stale closure**: Read store via `useTypingGameStore.getState()` inside interval, not closure var (freq:1)
+- **rAF stale state + perf**: Use ref for latest state in rAF loops; batch position updates in single `set()` (freq:2)
+- **Case-sensitive typing**: Levels 6+ (sentences/paragraphs) need strict `key === expected`; beginner levels stay case-insensitive (freq:1)
+- **Auth mockUserProfile removal**: Replace per-page `mockUserProfile` with `useAuthStore` user data + fallback defaults (freq:1)
+- **Linter races on multi-file edits**: Linter may strip new import before usage is added; re-read file and re-add import (freq:1)
+- **Zustand actions in useEffect**: Wrap store actions in `useRef` to avoid re-trigger deps; reduces dep array (freq:1)
+- **Lazy JSX map perf**: Use `Record<string, LazyExoticComponent>` lookup not `Record<string, ReactNode>` JSX map (freq:1)
+- **Loop expansion DOS**: Guard recursive `expandProgram` with `MAX_EXPANDED_COMMANDS=500`; catch and show error (freq:1)
+- **Math.random in animate**: Pre-compute random values via `useMemo`; random in render causes infinite re-animation (freq:1)

@@ -13,6 +13,7 @@ import type {
 } from '../types';
 import { SCORING, DIFFICULTY_CONFIG } from '../types';
 import { generateProblems, generateChoices, getLevelById } from '../data/levels';
+import { useDifficultyStore } from '../../../stores/difficultyStore';
 
 interface MathGameStore {
   // Game state
@@ -31,6 +32,7 @@ interface MathGameStore {
   roundStartTime: number | null;
   problemStartTime: number | null;
   timeRemaining: number | null;
+  timerDeadline: number | null;
 
   // Combo system
   combo: ComboState;
@@ -174,6 +176,7 @@ export const useMathGameStore = create<MathGameStore>((set, get) => ({
   roundStartTime: null,
   problemStartTime: null,
   timeRemaining: null,
+  timerDeadline: null,
   combo: {
     current: 0,
     multiplier: 1.0,
@@ -191,14 +194,22 @@ export const useMathGameStore = create<MathGameStore>((set, get) => ({
   }),
 
   selectLevel: (level) => {
-    const problems = generateProblems(level);
+    // Apply adaptive difficulty modifiers
+    const difficultyStore = useDifficultyStore.getState();
+    const adjustedLevel = {
+      ...level,
+      timeLimit: difficultyStore.applyTierToTimeLimit(level.timeLimit),
+      problemCount: difficultyStore.applyTierToQuestionCount(level.problemCount),
+    };
+
+    const problems = generateProblems(adjustedLevel);
     // Add choices to each problem for multiple choice mode
     problems.forEach(p => {
       p.choices = generateChoices(p.correctAnswer);
     });
 
     set({
-      currentLevel: level,
+      currentLevel: adjustedLevel,
       problems,
       currentProblemIndex: 0,
       currentAnswer: '',
@@ -217,11 +228,13 @@ export const useMathGameStore = create<MathGameStore>((set, get) => ({
 
   startRound: () => {
     const { currentLevel } = get();
+    const timeLimit = currentLevel?.timeLimit || null;
     set({
       gameState: 'playing',
       roundStartTime: Date.now(),
       problemStartTime: Date.now(),
-      timeRemaining: currentLevel?.timeLimit || null,
+      timeRemaining: timeLimit,
+      timerDeadline: timeLimit ? Date.now() + timeLimit * 1000 : null,
     });
   },
 
@@ -351,27 +364,32 @@ export const useMathGameStore = create<MathGameStore>((set, get) => ({
 
   nextProblem: () => {
     const { currentProblemIndex, currentLevel } = get();
+    const timeLimit = currentLevel?.timeLimit || null;
     set({
       currentProblemIndex: currentProblemIndex + 1,
       problemStartTime: Date.now(),
       currentAnswer: '',
-      timeRemaining: currentLevel?.timeLimit || null,
+      timeRemaining: timeLimit,
+      timerDeadline: timeLimit ? Date.now() + timeLimit * 1000 : null,
     });
   },
 
   pauseGame: () => {
-    const { gameState } = get();
+    const { gameState, timerDeadline } = get();
     if (gameState === 'playing') {
-      set({ gameState: 'paused' });
+      // Snapshot remaining time from deadline so we can restore on resume
+      const timeRemaining = timerDeadline ? Math.max(0, Math.ceil((timerDeadline - Date.now()) / 1000)) : null;
+      set({ gameState: 'paused', timeRemaining, timerDeadline: null });
     }
   },
 
   resumeGame: () => {
-    const { gameState } = get();
+    const { gameState, timeRemaining } = get();
     if (gameState === 'paused') {
       set({
         gameState: 'playing',
         problemStartTime: Date.now(),
+        timerDeadline: timeRemaining !== null ? Date.now() + timeRemaining * 1000 : null,
       });
     }
   },
@@ -387,6 +405,14 @@ export const useMathGameStore = create<MathGameStore>((set, get) => ({
       totalTime,
       combo.maxReached
     );
+
+    // Record performance for adaptive difficulty suggestions
+    useDifficultyStore.getState().recordPerformance({
+      gameId: 'math-basics',
+      levelId: currentLevel.id,
+      accuracy: results.accuracy,
+      score: results.score,
+    });
 
     set({
       gameState: 'results',
@@ -405,6 +431,7 @@ export const useMathGameStore = create<MathGameStore>((set, get) => ({
     roundStartTime: null,
     problemStartTime: null,
     timeRemaining: null,
+    timerDeadline: null,
     combo: {
       current: 0,
       multiplier: 1.0,
@@ -415,14 +442,17 @@ export const useMathGameStore = create<MathGameStore>((set, get) => ({
   }),
 
   tickTimer: () => {
-    const { timeRemaining, gameState } = get();
-    if (gameState !== 'playing' || timeRemaining === null) return;
+    const { timerDeadline, gameState } = get();
+    if (gameState !== 'playing' || timerDeadline === null) return;
+
+    const timeRemaining = Math.max(0, Math.ceil((timerDeadline - Date.now()) / 1000));
 
     if (timeRemaining <= 0) {
       // Time's up - auto submit or skip
+      set({ timeRemaining: 0 });
       get().skipProblem();
     } else {
-      set({ timeRemaining: timeRemaining - 1 });
+      set({ timeRemaining });
     }
   },
 }));
@@ -509,12 +539,29 @@ export const useMathProgressStore = create<MathProgressStore>()(
         // First levels of each operation are always unlocked
         if ([1, 6, 11, 16].includes(levelId)) return true;
 
+        // Already explicitly unlocked
         const progress = levelProgress[levelId];
         if (progress?.unlocked) return true;
 
-        // Check unlock requirement
+        // Flexible unlock: allow access up to 2 levels ahead of highest completed
+        // This lets kids who are "on a roll" try harder levels without grinding
         const level = getLevelById(levelId);
-        if (!level?.unlockRequirement) return false;
+        if (!level) return false;
+
+        // Check if any level in the same operation within 2 steps has been played
+        const operationLevels = Object.values(levelProgress)
+          .filter(p => {
+            const l = getLevelById(p.levelId);
+            return l && l.operation === level.operation && p.timesPlayed > 0;
+          });
+
+        if (operationLevels.length > 0) {
+          const highestPlayed = Math.max(...operationLevels.map(p => p.levelId));
+          if (levelId <= highestPlayed + 2) return true;
+        }
+
+        // Fall back to standard unlock requirement
+        if (!level.unlockRequirement) return false;
 
         const prevProgress = levelProgress[level.unlockRequirement.levelId];
         return (prevProgress?.highScore || 0) >= level.unlockRequirement.minScore;
@@ -548,6 +595,7 @@ export const useMathProgressStore = create<MathProgressStore>()(
     }),
     {
       name: 'math-basics-progress',
+      version: 1,
     }
   )
 );

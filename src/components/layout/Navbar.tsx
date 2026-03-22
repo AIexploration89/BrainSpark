@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
+import { useAuthStore } from '../../stores/authStore';
 
 interface NavbarProps {
   isLoggedIn?: boolean;
@@ -19,6 +20,7 @@ interface NavbarProps {
 export function Navbar({ isLoggedIn = false, userProfile }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
 
   return (
     <motion.nav
@@ -131,27 +133,27 @@ export function Navbar({ isLoggedIn = false, userProfile }: NavbarProps) {
           <div className="py-4 space-y-2">
             {!isLoggedIn ? (
               <>
-                <MobileNavLink href="#features">Features</MobileNavLink>
-                <MobileNavLink href="#games">Games</MobileNavLink>
-                <MobileNavLink href="#pricing">Pricing</MobileNavLink>
-                <MobileNavLink href="#parents">For Parents</MobileNavLink>
+                <MobileNavLink href="#features" onClick={() => setMobileMenuOpen(false)}>Features</MobileNavLink>
+                <MobileNavLink href="#games" onClick={() => setMobileMenuOpen(false)}>Games</MobileNavLink>
+                <MobileNavLink href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</MobileNavLink>
+                <MobileNavLink href="#parents" onClick={() => setMobileMenuOpen(false)}>For Parents</MobileNavLink>
                 <div className="pt-4 space-y-2 border-t border-white/10">
-                  <Button variant="ghost" fullWidth onClick={() => navigate('/login')}>
+                  <Button variant="ghost" fullWidth onClick={() => { setMobileMenuOpen(false); navigate('/login'); }}>
                     Log In
                   </Button>
-                  <Button variant="primary" fullWidth onClick={() => navigate('/signup')}>
+                  <Button variant="primary" fullWidth onClick={() => { setMobileMenuOpen(false); navigate('/signup'); }}>
                     Get Started Free
                   </Button>
                 </div>
               </>
             ) : (
               <>
-                <MobileNavLink href="/dashboard" isRoute>Dashboard</MobileNavLink>
-                <MobileNavLink href="/games" isRoute>Games</MobileNavLink>
-                <MobileNavLink href="/shop" isRoute>Shop</MobileNavLink>
-                <MobileNavLink href="/leaderboard" isRoute>Leaderboard</MobileNavLink>
+                <MobileNavLink href="/dashboard" isRoute onClick={() => setMobileMenuOpen(false)}>Dashboard</MobileNavLink>
+                <MobileNavLink href="/games" isRoute onClick={() => setMobileMenuOpen(false)}>Games</MobileNavLink>
+                <MobileNavLink href="/shop" isRoute onClick={() => setMobileMenuOpen(false)}>Shop</MobileNavLink>
+                <MobileNavLink href="/leaderboard" isRoute onClick={() => setMobileMenuOpen(false)}>Leaderboard</MobileNavLink>
                 <div className="pt-4 border-t border-white/10">
-                  <Button variant="ghost" fullWidth onClick={() => navigate('/')}>
+                  <Button variant="ghost" fullWidth onClick={() => { setMobileMenuOpen(false); logout(); navigate('/'); }}>
                     Log Out
                   </Button>
                 </div>
@@ -198,11 +200,12 @@ function NavLink({ href, children, isRoute = false }: { href: string; children: 
   );
 }
 
-function MobileNavLink({ href, children, isRoute = false }: { href: string; children: React.ReactNode; isRoute?: boolean }) {
+function MobileNavLink({ href, children, isRoute = false, onClick }: { href: string; children: React.ReactNode; isRoute?: boolean; onClick?: () => void }) {
   if (isRoute) {
     return (
       <Link
         to={href}
+        onClick={onClick}
         className="block px-4 py-2 text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
       >
         {children}
@@ -213,6 +216,7 @@ function MobileNavLink({ href, children, isRoute = false }: { href: string; chil
   return (
     <a
       href={href}
+      onClick={onClick}
       className="block px-4 py-2 text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
     >
       {children}

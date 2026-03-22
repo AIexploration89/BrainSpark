@@ -77,6 +77,7 @@ export interface Level {
   // Common
   timeLimit?: number; // in seconds, 0 = no limit
   hints?: number;
+  optimalMoves?: number; // minimum moves to solve (for accuracy calculation)
   description: string;
 }
 

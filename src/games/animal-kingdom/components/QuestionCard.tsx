@@ -3,6 +3,28 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Question, ComboState } from '../types';
 import { COMBO_MESSAGES } from '../types';
 
+// Static Tailwind class maps to avoid dynamic template literals (JIT won't detect them)
+const bgOpacity20Map: Record<string, string> = {
+  'neon-green': 'bg-neon-green/20',
+  'neon-cyan': 'bg-neon-cyan/20',
+  'neon-orange': 'bg-neon-orange/20',
+  'neon-purple': 'bg-neon-purple/20',
+};
+
+const borderOpacity30Map: Record<string, string> = {
+  'neon-green': 'border-neon-green/30',
+  'neon-cyan': 'border-neon-cyan/30',
+  'neon-orange': 'border-neon-orange/30',
+  'neon-purple': 'border-neon-purple/30',
+};
+
+const textColorMap: Record<string, string> = {
+  'neon-green': 'text-neon-green',
+  'neon-cyan': 'text-neon-cyan',
+  'neon-orange': 'text-neon-orange',
+  'neon-purple': 'text-neon-purple',
+};
+
 interface QuestionCardProps {
   question: Question;
   questionNumber: number;
@@ -90,9 +112,9 @@ export function QuestionCard({
           </div>
 
           {/* Question type badge */}
-          <div className={`px-3 py-1 bg-${typeStyle.color}/20 border border-${typeStyle.color}/30 rounded-lg`}>
+          <div className={`px-3 py-1 ${bgOpacity20Map[typeStyle.color] || 'bg-white/20'} border ${borderOpacity30Map[typeStyle.color] || 'border-white/30'} rounded-lg`}>
             <span className="text-sm">
-              {typeStyle.icon} <span className={`font-display text-${typeStyle.color} capitalize`}>
+              {typeStyle.icon} <span className={`font-display ${textColorMap[typeStyle.color] || 'text-white'} capitalize`}>
                 {question.type.replace('-', ' ')}
               </span>
             </span>

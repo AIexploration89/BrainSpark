@@ -11,6 +11,31 @@ interface LevelSelectorProps {
   onBack: () => void;
 }
 
+// Static class maps to avoid Tailwind JIT issues with dynamic class names
+const borderColorClasses: Record<string, string> = {
+  'neon-green': 'border-neon-green/30',
+  'neon-cyan': 'border-neon-cyan/30',
+  'neon-orange': 'border-neon-orange/30',
+  'neon-pink': 'border-neon-pink/30',
+  'neon-purple': 'border-neon-purple/30',
+};
+
+const hoverBorderClasses: Record<string, string> = {
+  'neon-green': 'hover:border-neon-green/60',
+  'neon-cyan': 'hover:border-neon-cyan/60',
+  'neon-orange': 'hover:border-neon-orange/60',
+  'neon-pink': 'hover:border-neon-pink/60',
+  'neon-purple': 'hover:border-neon-purple/60',
+};
+
+const diffBadgeClasses: Record<string, string> = {
+  'neon-green': 'bg-neon-green/20 text-neon-green',
+  'neon-cyan': 'bg-neon-cyan/20 text-neon-cyan',
+  'neon-orange': 'bg-neon-orange/20 text-neon-orange',
+  'neon-pink': 'bg-neon-pink/20 text-neon-pink',
+  'neon-purple': 'bg-neon-purple/20 text-neon-purple',
+};
+
 export function LevelSelector({ category, onSelectLevel, onBack }: LevelSelectorProps) {
   const { getLevelProgress, isLevelUnlocked } = useScienceProgressStore();
 
@@ -59,7 +84,7 @@ export function LevelSelector({ category, onSelectLevel, onBack }: LevelSelector
                   relative p-5 rounded-xl border-2 text-left overflow-hidden
                   transition-all duration-300
                   ${isUnlocked
-                    ? `bg-bg-secondary/80 backdrop-blur-sm border-${diffConfig.color}/30 hover:border-${diffConfig.color}/60 cursor-pointer`
+                    ? `bg-bg-secondary/80 backdrop-blur-sm ${borderColorClasses[diffConfig.color] || 'border-white/30'} ${hoverBorderClasses[diffConfig.color] || 'hover:border-white/60'} cursor-pointer`
                     : 'bg-bg-primary/50 border-white/5 opacity-60 cursor-not-allowed'
                   }
                 `}
@@ -81,7 +106,7 @@ export function LevelSelector({ category, onSelectLevel, onBack }: LevelSelector
                   className={`
                     absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center
                     font-display font-bold text-sm
-                    ${isUnlocked ? `bg-${diffConfig.color}/20 text-${diffConfig.color}` : 'bg-white/5 text-text-muted'}
+                    ${isUnlocked ? (diffBadgeClasses[diffConfig.color] || 'bg-white/20 text-white') : 'bg-white/5 text-text-muted'}
                   `}
                 >
                   {level.id}
@@ -113,7 +138,7 @@ export function LevelSelector({ category, onSelectLevel, onBack }: LevelSelector
                   <span
                     className={`
                       px-2 py-1 rounded-full text-xs font-display uppercase
-                      bg-${diffConfig.color}/20 text-${diffConfig.color}
+                      ${diffBadgeClasses[diffConfig.color] || 'bg-white/20 text-white'}
                     `}
                   >
                     {diffConfig.label}

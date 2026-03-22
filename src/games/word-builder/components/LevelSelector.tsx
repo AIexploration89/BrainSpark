@@ -4,6 +4,87 @@ import { CATEGORIES, DIFFICULTY_CONFIG } from '../types';
 import { getLevelsByCategory, CATEGORY_COLORS } from '../data/levels';
 import { useWordBuilderProgressStore } from '../stores/wordBuilderStore';
 
+// Static Tailwind class maps to avoid dynamic template literals (JIT won't generate them)
+const fromColorOpacity20Map: Record<string, string> = {
+  'neon-orange': 'from-neon-orange/20',
+  'neon-pink': 'from-neon-pink/20',
+  'neon-red': 'from-neon-red/20',
+  'neon-green': 'from-neon-green/20',
+  'neon-cyan': 'from-neon-cyan/20',
+  'neon-purple': 'from-neon-purple/20',
+  'neon-yellow': 'from-neon-yellow/20',
+};
+
+const fromColorOpacity30Map: Record<string, string> = {
+  'neon-orange': 'from-neon-orange/30',
+  'neon-pink': 'from-neon-pink/30',
+  'neon-red': 'from-neon-red/30',
+  'neon-green': 'from-neon-green/30',
+  'neon-cyan': 'from-neon-cyan/30',
+  'neon-purple': 'from-neon-purple/30',
+  'neon-yellow': 'from-neon-yellow/30',
+};
+
+const toColorOpacity10Map: Record<string, string> = {
+  'neon-orange': 'to-neon-orange/10',
+  'neon-pink': 'to-neon-pink/10',
+  'neon-red': 'to-neon-red/10',
+  'neon-green': 'to-neon-green/10',
+  'neon-cyan': 'to-neon-cyan/10',
+  'neon-purple': 'to-neon-purple/10',
+  'neon-yellow': 'to-neon-yellow/10',
+};
+
+const borderColorOpacity30Map: Record<string, string> = {
+  'neon-orange': 'border-neon-orange/30',
+  'neon-pink': 'border-neon-pink/30',
+  'neon-red': 'border-neon-red/30',
+  'neon-green': 'border-neon-green/30',
+  'neon-cyan': 'border-neon-cyan/30',
+  'neon-purple': 'border-neon-purple/30',
+  'neon-yellow': 'border-neon-yellow/30',
+};
+
+const borderColorOpacity60Map: Record<string, string> = {
+  'neon-orange': 'hover:border-neon-orange/60',
+  'neon-pink': 'hover:border-neon-pink/60',
+  'neon-red': 'hover:border-neon-red/60',
+  'neon-green': 'hover:border-neon-green/60',
+  'neon-cyan': 'hover:border-neon-cyan/60',
+  'neon-purple': 'hover:border-neon-purple/60',
+  'neon-yellow': 'hover:border-neon-yellow/60',
+};
+
+const bgColorOpacity20Map: Record<string, string> = {
+  'neon-orange': 'bg-neon-orange/20',
+  'neon-pink': 'bg-neon-pink/20',
+  'neon-red': 'bg-neon-red/20',
+  'neon-green': 'bg-neon-green/20',
+  'neon-cyan': 'bg-neon-cyan/20',
+  'neon-purple': 'bg-neon-purple/20',
+  'neon-yellow': 'bg-neon-yellow/20',
+};
+
+const textColorMap: Record<string, string> = {
+  'neon-orange': 'text-neon-orange',
+  'neon-pink': 'text-neon-pink',
+  'neon-red': 'text-neon-red',
+  'neon-green': 'text-neon-green',
+  'neon-cyan': 'text-neon-cyan',
+  'neon-purple': 'text-neon-purple',
+  'neon-yellow': 'text-neon-yellow',
+};
+
+const borderColorOpacity40Map: Record<string, string> = {
+  'neon-orange': 'border-neon-orange/40',
+  'neon-pink': 'border-neon-pink/40',
+  'neon-red': 'border-neon-red/40',
+  'neon-green': 'border-neon-green/40',
+  'neon-cyan': 'border-neon-cyan/40',
+  'neon-purple': 'border-neon-purple/40',
+  'neon-yellow': 'border-neon-yellow/40',
+};
+
 // Category Selector
 interface CategorySelectorProps {
   onSelectCategory: (category: WordCategory) => void;
@@ -54,9 +135,9 @@ export function CategorySelector({ onSelectCategory, onBack }: CategorySelectorP
                 onClick={() => onSelectCategory(category.id)}
                 className={`
                   relative p-6 rounded-2xl text-left overflow-hidden
-                  bg-gradient-to-br from-${colors.primary}/20 to-${colors.secondary}/10
-                  border-2 border-${colors.primary}/30
-                  hover:border-${colors.primary}/60
+                  bg-gradient-to-br ${fromColorOpacity20Map[colors.primary] || 'from-white/20'} ${toColorOpacity10Map[colors.secondary] || 'to-white/10'}
+                  border-2 ${borderColorOpacity30Map[colors.primary] || 'border-white/30'}
+                  ${borderColorOpacity60Map[colors.primary] || 'hover:border-white/60'}
                   transition-all duration-300
                   group
                 `}
@@ -68,7 +149,7 @@ export function CategorySelector({ onSelectCategory, onBack }: CategorySelectorP
                 <motion.div
                   initial={{ opacity: 0 }}
                   whileHover={{ opacity: 0.3 }}
-                  className={`absolute inset-0 bg-gradient-to-br from-${colors.primary}/30 to-transparent`}
+                  className={`absolute inset-0 bg-gradient-to-br ${fromColorOpacity30Map[colors.primary] || 'from-white/30'} to-transparent`}
                 />
 
                 {/* Icon */}
@@ -176,7 +257,7 @@ export function LevelSelector({ category, onSelectLevel, onBack }: LevelSelector
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className={`mb-6 p-4 rounded-xl bg-gradient-to-r from-${colors.primary}/20 to-transparent border border-${colors.primary}/30`}
+        className={`mb-6 p-4 rounded-xl bg-gradient-to-r ${fromColorOpacity20Map[colors.primary] || 'from-white/20'} to-transparent border ${borderColorOpacity30Map[colors.primary] || 'border-white/30'}`}
       >
         <p className="text-sm text-text-secondary">
           <span className="text-yellow-400 mr-2">💡</span>
@@ -206,7 +287,7 @@ export function LevelSelector({ category, onSelectLevel, onBack }: LevelSelector
                 className={`
                   relative p-5 rounded-2xl text-left
                   ${isUnlocked
-                    ? `bg-bg-secondary/80 border-2 border-${colors.primary}/30 hover:border-${colors.primary}/60`
+                    ? `bg-bg-secondary/80 border-2 ${borderColorOpacity30Map[colors.primary] || 'border-white/30'} ${borderColorOpacity60Map[colors.primary] || 'hover:border-white/60'}`
                     : 'bg-bg-secondary/40 border-2 border-white/10'
                   }
                   transition-all duration-300
@@ -233,7 +314,7 @@ export function LevelSelector({ category, onSelectLevel, onBack }: LevelSelector
                   flex items-center justify-center
                   font-display font-bold text-sm
                   ${isUnlocked
-                    ? `bg-${colors.primary}/20 text-${colors.primary} border border-${colors.primary}/40`
+                    ? `${bgColorOpacity20Map[colors.primary] || 'bg-white/20'} ${textColorMap[colors.primary] || 'text-white'} border ${borderColorOpacity40Map[colors.primary] || 'border-white/40'}`
                     : 'bg-white/10 text-white/30 border border-white/10'
                   }
                 `}>
@@ -252,7 +333,7 @@ export function LevelSelector({ category, onSelectLevel, onBack }: LevelSelector
                 <div className="flex items-center gap-2 mb-3">
                   <span className={`
                     px-2 py-0.5 rounded-full text-xs font-display font-semibold uppercase
-                    bg-${diffConfig.color}/20 text-${diffConfig.color} border border-${diffConfig.color}/40
+                    ${bgColorOpacity20Map[diffConfig.color] || 'bg-white/20'} ${textColorMap[diffConfig.color] || 'text-white'} border ${borderColorOpacity40Map[diffConfig.color] || 'border-white/40'}
                   `}>
                     {diffConfig.label}
                   </span>

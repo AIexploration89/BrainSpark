@@ -7,6 +7,7 @@ import { GamesPage } from './pages/GamesPage';
 import { ShopPage } from './pages/ShopPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { GamePlayPage } from './pages/GamePlayPage';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
   return (
@@ -17,14 +18,14 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
 
-        {/* Protected routes (would need auth check in real app) */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/games" element={<GamesPage />} />
-        <Route path="/shop" element={<ShopPage />} />
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
+        {/* Protected routes */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/games" element={<ProtectedRoute><GamesPage /></ProtectedRoute>} />
+        <Route path="/shop" element={<ProtectedRoute><ShopPage /></ProtectedRoute>} />
+        <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
 
         {/* Game play routes */}
-        <Route path="/play/:gameId" element={<GamePlayPage />} />
+        <Route path="/play/:gameId" element={<ProtectedRoute><GamePlayPage /></ProtectedRoute>} />
 
         {/* Catch-all redirect to home */}
         <Route path="*" element={<LandingPage />} />

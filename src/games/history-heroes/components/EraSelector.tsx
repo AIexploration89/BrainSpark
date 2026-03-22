@@ -8,6 +8,14 @@ interface EraSelectorProps {
   onBack: () => void;
 }
 
+// Static class map to avoid Tailwind JIT issues with dynamic class names
+const hoverBorderClasses: Record<string, string> = {
+  'neon-yellow': 'hover:border-neon-yellow/50',
+  'neon-purple': 'hover:border-neon-purple/50',
+  'neon-cyan': 'hover:border-neon-cyan/50',
+  'neon-green': 'hover:border-neon-green/50',
+};
+
 export function EraSelector({ onSelectEra, onBack }: EraSelectorProps) {
   const { getEraStars } = useHistoryProgressStore();
 
@@ -59,7 +67,7 @@ export function EraSelector({ onSelectEra, onBack }: EraSelectorProps) {
                 className={`
                   relative p-6 rounded-2xl border-2 transition-all duration-300 text-left
                   bg-gradient-to-br ${era.gradient} backdrop-blur-xl
-                  border-white/10 hover:border-${era.color}/50
+                  border-white/10 ${hoverBorderClasses[era.color] || 'hover:border-white/50'}
                   group overflow-hidden
                 `}
               >

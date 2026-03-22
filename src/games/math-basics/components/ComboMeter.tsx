@@ -2,6 +2,53 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { ComboState } from '../types';
 import { COMBO_MESSAGES } from '../types';
 
+// Static class lookup maps for Tailwind JIT compatibility
+const comboTextClasses: Record<string, string> = {
+  'neon-green': 'text-neon-green',
+  'neon-cyan': 'text-neon-cyan',
+  'neon-orange': 'text-neon-orange',
+  'neon-pink': 'text-neon-pink',
+  'neon-yellow': 'text-neon-yellow',
+};
+
+const comboBorderClasses: Record<string, string> = {
+  'neon-green': 'border-neon-green',
+  'neon-cyan': 'border-neon-cyan',
+  'neon-orange': 'border-neon-orange',
+  'neon-pink': 'border-neon-pink',
+  'neon-yellow': 'border-neon-yellow',
+};
+
+const comboBgClasses: Record<string, string> = {
+  'neon-green': 'bg-neon-green',
+  'neon-cyan': 'bg-neon-cyan',
+  'neon-orange': 'bg-neon-orange',
+  'neon-pink': 'bg-neon-pink',
+  'neon-yellow': 'bg-neon-yellow',
+};
+
+const comboGradientClasses: Record<string, string> = {
+  'neon-green': 'bg-gradient-to-r from-neon-green via-neon-cyan to-neon-green',
+  'neon-cyan': 'bg-gradient-to-r from-neon-green via-neon-cyan to-neon-cyan',
+  'neon-orange': 'bg-gradient-to-r from-neon-green via-neon-cyan to-neon-orange',
+  'neon-pink': 'bg-gradient-to-r from-neon-green via-neon-cyan to-neon-pink',
+  'neon-yellow': 'bg-gradient-to-r from-neon-green via-neon-cyan to-neon-yellow',
+};
+
+const comboMsgClasses: Record<string, string> = {
+  'neon-green': 'bg-neon-green/20 text-neon-green border-neon-green/50',
+  'neon-cyan': 'bg-neon-cyan/20 text-neon-cyan border-neon-cyan/50',
+  'neon-orange': 'bg-neon-orange/20 text-neon-orange border-neon-orange/50',
+  'neon-pink': 'bg-neon-pink/20 text-neon-pink border-neon-pink/50',
+  'neon-yellow': 'bg-neon-yellow/20 text-neon-yellow border-neon-yellow/50',
+};
+
+const miniComboClasses: Record<string, string> = {
+  'neon-green': 'bg-neon-green/20 border-neon-green/40',
+  'neon-cyan': 'bg-neon-cyan/20 border-neon-cyan/40',
+  'neon-orange': 'bg-neon-orange/20 border-neon-orange/40',
+};
+
 interface ComboMeterProps {
   combo: ComboState;
   showMessage?: boolean;
@@ -41,7 +88,7 @@ export function ComboMeter({ combo, showMessage = true }: ComboMeterProps) {
         className={`
           relative flex items-center gap-3 px-4 py-2 rounded-xl border-2
           bg-bg-secondary/80 backdrop-blur-sm
-          ${combo.isOnFire ? `border-${comboColor}` : 'border-white/20'}
+          ${combo.isOnFire ? comboBorderClasses[comboColor] : 'border-white/20'}
         `}
         style={{
           boxShadow: combo.isOnFire
@@ -55,7 +102,7 @@ export function ComboMeter({ combo, showMessage = true }: ComboMeterProps) {
             key={combo.current}
             initial={{ scale: 1.5, y: -10 }}
             animate={{ scale: 1, y: 0 }}
-            className={`text-2xl font-display font-bold text-${comboColor}`}
+            className={`text-2xl font-display font-bold ${comboTextClasses[comboColor]}`}
             style={{
               textShadow: combo.current > 0
                 ? `0 0 10px var(--color-${comboColor})`
@@ -79,7 +126,7 @@ export function ComboMeter({ combo, showMessage = true }: ComboMeterProps) {
             initial={{ scale: 1.3 }}
             animate={{ scale: 1 }}
             className={`text-lg font-display font-bold ${
-              combo.multiplier > 1 ? `text-${comboColor}` : 'text-text-secondary'
+              combo.multiplier > 1 ? comboTextClasses[comboColor] : 'text-text-secondary'
             }`}
           >
             {combo.multiplier.toFixed(1)}x
@@ -119,7 +166,7 @@ export function ComboMeter({ combo, showMessage = true }: ComboMeterProps) {
           initial={{ width: 0 }}
           animate={{ width: `${fillPercent}%` }}
           transition={{ type: 'spring', stiffness: 100 }}
-          className={`h-full rounded-full bg-gradient-to-r from-neon-green via-neon-cyan to-${comboColor}`}
+          className={`h-full rounded-full ${comboGradientClasses[comboColor]}`}
           style={{
             boxShadow: `0 0 10px var(--color-${comboColor})`,
           }}
@@ -137,7 +184,7 @@ export function ComboMeter({ combo, showMessage = true }: ComboMeterProps) {
             <div
               className={`w-0.5 h-1.5 rounded-full ${
                 combo.current >= milestone
-                  ? `bg-${comboColor}`
+                  ? comboBgClasses[comboColor]
                   : 'bg-white/20'
               }`}
             />
@@ -158,8 +205,8 @@ export function ComboMeter({ combo, showMessage = true }: ComboMeterProps) {
             exit={{ opacity: 0, y: -20, scale: 0.5 }}
             className={`
               absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap
-              px-4 py-1.5 rounded-full font-display font-bold
-              bg-${comboColor}/20 text-${comboColor} border border-${comboColor}/50
+              px-4 py-1.5 rounded-full font-display font-bold border
+              ${comboMsgClasses[comboColor]}
             `}
             style={{
               boxShadow: `0 0 20px var(--color-${comboColor})`,
@@ -185,14 +232,16 @@ export function ComboMini({ combo }: { combo: ComboState }) {
     return 'neon-green';
   };
 
+  const color = getColor();
+
   return (
     <motion.div
       key={combo.current}
       initial={{ scale: 1.3 }}
       animate={{ scale: 1 }}
       className={`
-        flex items-center gap-1.5 px-2.5 py-1 rounded-full
-        bg-${getColor()}/20 border border-${getColor()}/40
+        flex items-center gap-1.5 px-2.5 py-1 rounded-full border
+        ${miniComboClasses[color]}
       `}
     >
       {combo.isOnFire && (
@@ -203,11 +252,11 @@ export function ComboMini({ combo }: { combo: ComboState }) {
           🔥
         </motion.span>
       )}
-      <span className={`font-display font-bold text-${getColor()}`}>
+      <span className={`font-display font-bold ${comboTextClasses[color]}`}>
         {combo.current}
       </span>
       <span className="text-text-muted text-xs">streak</span>
-      <span className={`font-display text-sm text-${getColor()}`}>
+      <span className={`font-display text-sm ${comboTextClasses[color]}`}>
         {combo.multiplier.toFixed(1)}x
       </span>
     </motion.div>

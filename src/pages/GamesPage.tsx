@@ -3,196 +3,36 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/layout/Navbar';
 import { GameCard } from '../components/ui/GameCard';
-import type { Game } from '../types';
+import { allGames, futurePlannedGames } from '../data/games';
+import { useAuthStore } from '../stores/authStore';
 
-// Mock user profile
-const mockUserProfile = {
-  nickname: 'SparkMaster',
-  avatar: '🚀',
-  level: 12,
-  xp: 2450,
-  xpToNextLevel: 3000,
-  sparks: 1250,
-  streak: 7,
-};
+// Use centralized game data
+const games = allGames;
 
-// All games data
-const games: Game[] = [
-  {
-    id: 'typing-master',
-    name: 'Typing Master',
-    description: 'Master the keyboard from home row to full paragraphs. Track your WPM and accuracy!',
-    icon: '⌨️',
-    color: 'cyan',
-    category: 'skills',
-    ageRange: '5-12',
-    difficulty: 'easy',
-    isNew: true,
-  },
-  {
-    id: 'mouse-expert',
-    name: 'Mouse Expert',
-    description: 'Perfect your mouse control with precision clicking and smooth tracking.',
-    icon: '🖱️',
-    color: 'pink',
-    category: 'skills',
-    ageRange: '3-10',
-    difficulty: 'easy',
-  },
-  {
-    id: 'physics-lab',
-    name: 'Physics Lab',
-    description: 'Explore gravity, momentum, and energy through interactive experiments.',
-    icon: '🔬',
-    color: 'purple',
-    category: 'academic',
-    ageRange: '6-12',
-    difficulty: 'medium',
-    isHot: true,
-  },
-  {
-    id: 'math-basics',
-    name: 'Math Basics',
-    description: 'From counting to multiplication, build strong math foundations.',
-    icon: '➕',
-    color: 'green',
-    category: 'academic',
-    ageRange: '3-12',
-    difficulty: 'easy',
-  },
-  {
-    id: 'word-builder',
-    name: 'Word Builder',
-    description: 'Build vocabulary and spelling skills with engaging word puzzles.',
-    icon: '📝',
-    color: 'orange',
-    category: 'academic',
-    ageRange: '4-12',
-    difficulty: 'easy',
-    isNew: true,
-  },
-  {
-    id: 'code-quest',
-    name: 'Code Quest',
-    description: 'Learn programming logic through visual block coding adventures.',
-    icon: '💻',
-    color: 'cyan',
-    category: 'academic',
-    ageRange: '7-12',
-    difficulty: 'hard',
-  },
-  {
-    id: 'memory-matrix',
-    name: 'Memory Matrix',
-    description: 'Challenge your memory with patterns, sequences, and matching games.',
-    icon: '🧠',
-    color: 'pink',
-    category: 'cognitive',
-    ageRange: '3-12',
-    difficulty: 'medium',
-  },
-  {
-    id: 'rhythm-reflex',
-    name: 'Rhythm & Reflex',
-    description: 'Train timing and coordination with beat-matching challenges.',
-    icon: '🎵',
-    color: 'yellow',
-    category: 'cognitive',
-    ageRange: '5-12',
-    difficulty: 'medium',
-    isHot: true,
-  },
-  {
-    id: 'space-exploration',
-    name: 'Space Explorer',
-    description: 'Journey through our solar system, discover planet facts, and test your space knowledge!',
-    icon: '🚀',
-    color: 'purple',
-    category: 'academic',
-    ageRange: '5-12',
-    difficulty: 'medium',
-    isNew: true,
-  },
-  {
-    id: 'geography-explorer',
-    name: 'Geography Explorer',
-    description: 'Discover countries, capitals, flags, and landmarks from around the world!',
-    icon: '🌍',
-    color: 'cyan',
-    category: 'academic',
-    ageRange: '5-12',
-    difficulty: 'medium',
-    isNew: true,
-  },
-  {
-    id: 'science-explorer',
-    name: 'Science Explorer',
-    description: 'Discover Biology, Chemistry, Physics, and Earth Science through fun experiments!',
-    icon: '🔬',
-    color: 'green',
-    category: 'academic',
-    ageRange: '5-12',
-    difficulty: 'medium',
-    isNew: true,
-    isHot: true,
-  },
-  {
-    id: 'history-heroes',
-    name: 'History Heroes',
-    description: 'Travel through time and discover the heroes who shaped our world!',
-    icon: '🏛️',
-    color: 'yellow',
-    category: 'academic',
-    ageRange: '6-12',
-    difficulty: 'medium',
-    isNew: true,
-  },
-  {
-    id: 'animal-kingdom',
-    name: 'Animal Kingdom',
-    description: 'Discover amazing animals, their habitats, classifications, and fascinating wildlife facts!',
-    icon: '🦁',
-    color: 'green',
-    category: 'academic',
-    ageRange: '5-12',
-    difficulty: 'medium',
-    isNew: true,
-    isHot: true,
-  },
-  {
-    id: 'puzzle-world',
-    name: 'Puzzle World',
-    description: 'Challenge your brain with sliding puzzles, pattern matching, sequences, and jigsaws!',
-    icon: '🧩',
-    color: 'cyan',
-    category: 'cognitive',
-    ageRange: '5-12',
-    difficulty: 'medium',
-    isNew: true,
-    isHot: true,
-  },
-];
-
-// Mock progress
-const gameProgress: Record<string, number> = {
-  'typing-master': 45,
-  'mouse-expert': 72,
-  'physics-lab': 23,
-  'math-basics': 89,
-  'word-builder': 15,
-  'code-quest': 8,
-  'memory-matrix': 56,
-  'rhythm-reflex': 34,
-};
+// Default progress for all games
+const gameProgress: Record<string, number> = Object.fromEntries(
+  allGames.map(g => [g.id, 0])
+);
 
 type FilterCategory = 'all' | 'easy' | 'medium' | 'hard';
 type SortOption = 'name' | 'progress' | 'difficulty';
 
 export function GamesPage() {
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
   const [selectedCategory, setSelectedCategory] = useState<FilterCategory>('all');
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const userProfile = {
+    nickname: user?.childName || 'Explorer',
+    avatar: user?.avatar || '🚀',
+    level: 1,
+    xp: 0,
+    xpToNextLevel: 1000,
+    sparks: 0,
+    streak: 0,
+  };
 
   const filteredGames = games
     .filter(game => {
@@ -213,7 +53,7 @@ export function GamesPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary">
-      <Navbar isLoggedIn={true} userProfile={mockUserProfile} />
+      <Navbar isLoggedIn={true} userProfile={userProfile} />
 
       <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         {/* Header */}
@@ -331,12 +171,7 @@ export function GamesPage() {
             <span className="text-2xl">🚀</span> Coming Soon
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { name: 'Art Studio', icon: '🎨', desc: 'Express your creativity' },
-              { name: 'Music Maker', icon: '🎵', desc: 'Create melodies and learn music' },
-              { name: 'Language Lab', icon: '🗣️', desc: 'Learn new languages with fun' },
-              { name: 'Story Builder', icon: '📖', desc: 'Create interactive stories' },
-            ].map((game, i) => (
+            {futurePlannedGames.map((game, i) => (
               <motion.div
                 key={game.name}
                 initial={{ opacity: 0, y: 20 }}

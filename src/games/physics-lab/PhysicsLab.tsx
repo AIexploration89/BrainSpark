@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { ChallengeBar } from '../../components/ui/ChallengeBar';
 import { usePhysicsProgressStore } from './stores/physicsStore';
 import { EXPERIMENTS } from './data/experiments';
 import type { ExperimentType } from './types';
@@ -146,6 +147,16 @@ export function PhysicsLab() {
               <div className="text-xs text-text-muted uppercase">Unlocked</div>
             </div>
           </div>
+        </motion.div>
+
+        {/* Challenge Level Selector */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          className="w-full max-w-4xl mb-4"
+        >
+          <ChallengeBar gameId="physics-lab" compact />
         </motion.div>
 
         {/* Experiments Grid */}

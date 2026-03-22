@@ -2,6 +2,15 @@ import { motion } from 'framer-motion';
 import type { GameResult, Level } from '../types';
 import { SCORING } from '../types';
 
+// Static Tailwind class map to avoid dynamic template literals (JIT won't detect them)
+const textColorMap: Record<string, string> = {
+  'neon-yellow': 'text-neon-yellow',
+  'neon-green': 'text-neon-green',
+  'neon-cyan': 'text-neon-cyan',
+  'neon-orange': 'text-neon-orange',
+  'neon-pink': 'text-neon-pink',
+};
+
 interface ResultsScreenProps {
   results: GameResult;
   level: Level;
@@ -67,7 +76,7 @@ export function ResultsScreen({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className={`font-display text-3xl sm:text-4xl font-black text-${resultInfo.color}`}
+            className={`font-display text-3xl sm:text-4xl font-black ${textColorMap[resultInfo.color] || 'text-white'}`}
             style={{
               textShadow: isPerfect
                 ? '0 0 20px rgba(255,229,92,0.5), 0 0 40px rgba(255,229,92,0.3)'

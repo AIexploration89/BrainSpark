@@ -22,7 +22,12 @@ export function CountdownOverlay({ onComplete }: CountdownOverlayProps) {
   }, [count, onComplete]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-primary/90 backdrop-blur-sm">
+    <div
+      role="status"
+      aria-live="assertive"
+      aria-label={count > 0 ? `Starting in ${count}` : 'Go!'}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-bg-primary/90 backdrop-blur-sm"
+    >
       {/* Matrix rain background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (

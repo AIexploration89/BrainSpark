@@ -264,6 +264,16 @@ body {
   100% { background-position: -200% 0; }
 }
 
+/* Shimmer animation for progress bars and buttons */
+@utility animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
 /* Particle Effect Background */
 .particles-bg {
   position: fixed;

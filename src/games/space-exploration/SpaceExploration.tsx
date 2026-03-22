@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChallengeBar } from '../../components/ui/ChallengeBar';
 import { useSpaceGameStore, useSpaceProgressStore } from './stores/spaceStore';
 import { getRandomQuestions } from './data/quizzes';
 import { getMissionById } from './data/missions';
@@ -339,6 +340,16 @@ function MainMenu({ onSelectMode, onBack, progress }: MainMenuProps) {
         <p className="text-text-secondary text-lg max-w-md mx-auto">
           Journey through our solar system and discover the wonders of space!
         </p>
+      </motion.div>
+
+      {/* Challenge Level Selector */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="w-full max-w-sm relative z-10 mb-4"
+      >
+        <ChallengeBar gameId="space-exploration" />
       </motion.div>
 
       {/* Game modes */}

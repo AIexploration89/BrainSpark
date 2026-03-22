@@ -9,6 +9,28 @@ interface CategorySelectorProps {
   onBack: () => void;
 }
 
+// Static class maps to avoid Tailwind JIT issues with dynamic class names
+const borderColorClasses: Record<string, string> = {
+  'neon-green': 'border-neon-green/30',
+  'neon-purple': 'border-neon-purple/30',
+  'neon-cyan': 'border-neon-cyan/30',
+  'neon-orange': 'border-neon-orange/30',
+};
+
+const hoverBorderClasses: Record<string, string> = {
+  'neon-green': 'hover:border-neon-green/60',
+  'neon-purple': 'hover:border-neon-purple/60',
+  'neon-cyan': 'hover:border-neon-cyan/60',
+  'neon-orange': 'hover:border-neon-orange/60',
+};
+
+const bgColorClasses: Record<string, string> = {
+  'neon-green': 'bg-neon-green',
+  'neon-purple': 'bg-neon-purple',
+  'neon-cyan': 'bg-neon-cyan',
+  'neon-orange': 'bg-neon-orange',
+};
+
 export function CategorySelector({ onSelectCategory, onBack }: CategorySelectorProps) {
   const { getCategoryStars } = useScienceProgressStore();
 
@@ -46,7 +68,7 @@ export function CategorySelector({ onSelectCategory, onBack }: CategorySelectorP
               className={`
                 relative p-6 rounded-2xl border-2 text-left overflow-hidden
                 bg-gradient-to-br ${category.gradient}
-                border-${category.color}/30 hover:border-${category.color}/60
+                ${borderColorClasses[category.color] || 'border-white/30'} ${hoverBorderClasses[category.color] || 'hover:border-white/60'}
                 transition-colors group
               `}
               style={{
@@ -91,7 +113,7 @@ export function CategorySelector({ onSelectCategory, onBack }: CategorySelectorP
                       initial={{ width: 0 }}
                       animate={{ width: `${(stars / maxStars) * 100}%` }}
                       transition={{ delay: 0.5 + index * 0.1, duration: 0.8 }}
-                      className={`h-full bg-${category.color} rounded-full`}
+                      className={`h-full ${bgColorClasses[category.color] || 'bg-white'} rounded-full`}
                       style={{
                         boxShadow: `0 0 10px var(--${category.color})`,
                       }}

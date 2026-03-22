@@ -298,24 +298,42 @@ export function WordRain({ difficulty, onGameOver }: WordRainProps) {
     addWordRainWord(newWord);
   }, [wordRainWords.length, settings.maxWords, settings.fallSpeed, addWordRainWord]);
 
+  // Keep a ref to the latest wordRainWords so the rAF loop never goes stale
+  const wordRainWordsRef = useRef(wordRainWords);
+  wordRainWordsRef.current = wordRainWords;
+
   // Game loop - update word positions
   useEffect(() => {
     if (gameState !== 'playing') return;
 
     const updatePositions = () => {
       const containerHeight = containerRef.current?.offsetHeight || 400;
+      const words = wordRainWordsRef.current;
 
-      wordRainWords.forEach((word) => {
+      // Collect position updates and removals, then apply in batch
+      const positionUpdates = new Map<string, { y: number }>();
+      const removedIds: string[] = [];
+
+      words.forEach((word) => {
         const newY = word.y + word.speed;
 
         if (newY > containerHeight - 60) {
-          // Word hit the bottom
-          removeWordRainWord(word.id);
-          loseWordRainLife();
-          setCombo(0);
+          removedIds.push(word.id);
         } else {
-          updateWordRainWord(word.id, { y: newY });
+          positionUpdates.set(word.id, { y: newY });
         }
+      });
+
+      // Apply batch position updates in a single set()
+      if (positionUpdates.size > 0) {
+        useTypingGameStore.getState().batchUpdateWordPositions(positionUpdates);
+      }
+
+      // Handle removals and life loss
+      removedIds.forEach((id) => {
+        removeWordRainWord(id);
+        loseWordRainLife();
+        setCombo(0);
       });
 
       gameLoopRef.current = requestAnimationFrame(updatePositions);
@@ -328,7 +346,7 @@ export function WordRain({ difficulty, onGameOver }: WordRainProps) {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
-  }, [gameState, wordRainWords, updateWordRainWord, removeWordRainWord, loseWordRainLife]);
+  }, [gameState, removeWordRainWord, loseWordRainLife]);
 
   // Spawn timer
   useEffect(() => {

@@ -2,9 +2,11 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
+import { useAuthStore } from '../stores/authStore';
 
 export function SignupPage() {
   const navigate = useNavigate();
+  const signup = useAuthStore((state) => state.signup);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     email: '',
@@ -14,11 +16,13 @@ export function SignupPage() {
     avatar: '🚀',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const avatars = ['🚀', '🦄', '🐱', '🐶', '🦊', '🐼', '🦁', '🐸', '🦋', '🌟', '🎮', '⚡'];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
 
     if (step === 1) {
       setStep(2);
@@ -26,16 +30,21 @@ export function SignupPage() {
     }
 
     setIsLoading(true);
-    // Simulate signup - in real app, this would call auth API
     setTimeout(() => {
+      const age = parseInt(formData.childAge, 10);
+      const success = signup(formData.email, formData.password, formData.childName, formData.avatar, age);
       setIsLoading(false);
-      navigate('/dashboard');
-    }, 1000);
+      if (success) {
+        navigate('/dashboard');
+      } else {
+        setError('An account with this email already exists. Please log in instead.');
+      }
+    }, 500);
   };
 
-  const handleSocialSignup = (provider: string) => {
-    console.log(`Sign up with ${provider}`);
-    setStep(2);
+  const handleSocialSignup = (_provider: string) => {
+    // Social signup not implemented - show message
+    setError('Social sign-up is not available yet. Please use email and password.');
   };
 
   return (
@@ -73,6 +82,18 @@ export function SignupPage() {
 
         {/* Signup card */}
         <div className="bg-bg-secondary/80 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
+          {/* Error message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-3 bg-neon-red/10 border border-neon-red/30 rounded-xl text-neon-red text-sm text-center"
+              role="alert"
+            >
+              {error}
+            </motion.div>
+          )}
+
           {step === 1 ? (
             <>
               <h1 className="text-2xl font-display font-bold text-white text-center mb-2">
@@ -148,8 +169,10 @@ export function SignupPage() {
                     placeholder="Create a password"
                     required
                     minLength={8}
+                    pattern="(?=.*[a-zA-Z])(?=.*[0-9]).{8,}"
+                    title="Must be at least 8 characters with at least one letter and one number"
                   />
-                  <p className="mt-1 text-xs text-text-muted">At least 8 characters</p>
+                  <PasswordStrengthIndicator password={formData.password} />
                 </div>
 
                 <Button type="submit" variant="primary" fullWidth>
@@ -272,9 +295,9 @@ export function SignupPage() {
         {/* Terms */}
         <p className="mt-6 text-center text-text-muted text-xs">
           By signing up, you agree to our{' '}
-          <Link to="/terms" className="text-neon-cyan hover:underline">Terms of Service</Link>
+          <button type="button" onClick={() => alert('Coming soon!')} className="text-neon-cyan hover:underline">Terms of Service</button>
           {' '}and{' '}
-          <Link to="/privacy" className="text-neon-cyan hover:underline">Privacy Policy</Link>
+          <button type="button" onClick={() => alert('Coming soon!')} className="text-neon-cyan hover:underline">Privacy Policy</button>
         </p>
 
         {/* Back to home */}
@@ -284,6 +307,42 @@ export function SignupPage() {
           </Link>
         </p>
       </motion.div>
+    </div>
+  );
+}
+
+function PasswordStrengthIndicator({ password }: { password: string }) {
+  const getStrength = (pw: string): { level: number; label: string; color: string } => {
+    if (pw.length === 0) return { level: 0, label: '', color: '' };
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[a-zA-Z]/.test(pw) && /[0-9]/.test(pw)) score++;
+    if (pw.length >= 12) score++;
+    if (/[^a-zA-Z0-9]/.test(pw)) score++;
+
+    if (score <= 1) return { level: 1, label: 'Weak', color: 'bg-neon-red' };
+    if (score === 2) return { level: 2, label: 'Fair', color: 'bg-neon-orange' };
+    if (score === 3) return { level: 3, label: 'Good', color: 'bg-neon-yellow' };
+    return { level: 4, label: 'Strong', color: 'bg-neon-green' };
+  };
+
+  const { level, label, color } = getStrength(password);
+
+  if (password.length === 0) {
+    return <p className="mt-1 text-xs text-text-muted">At least 8 characters with a letter and a number</p>;
+  }
+
+  return (
+    <div className="mt-2">
+      <div className="flex gap-1 mb-1">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className={`h-1 flex-1 rounded-full transition-colors ${i <= level ? color : 'bg-bg-tertiary'}`}
+          />
+        ))}
+      </div>
+      <p className="text-xs text-text-muted">{label}</p>
     </div>
   );
 }

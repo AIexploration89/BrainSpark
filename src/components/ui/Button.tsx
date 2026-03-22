@@ -86,7 +86,7 @@ export function Button({
       type={type}
     >
       {/* Shimmer effect overlay */}
-      <span className="absolute inset-0 overflow-hidden rounded-inherit">
+      <span className="absolute inset-0 overflow-hidden rounded-[inherit]">
         <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-shimmer" />
       </span>
 
